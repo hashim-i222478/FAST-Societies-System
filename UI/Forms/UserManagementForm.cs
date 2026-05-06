@@ -29,33 +29,28 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "User Management";
-            this.Size = new System.Drawing.Size(900, 550);
-            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.Text = "User Management - FAST Societies";
+            this.Size = new System.Drawing.Size(1100, 700);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Title
+            Panel mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(30) };
+            this.Controls.Add(mainPanel);
+
             Label titleLabel = new Label
             {
-                Text = "Manage Users",
-                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(20, 20),
-                Size = new System.Drawing.Size(300, 30)
+                Text = "User Management",
+                Font = ThemeManager.TitleFont,
+                ForeColor = ThemeManager.TextPrimary,
+                Dock = DockStyle.Top,
+                Height = 60
             };
-            this.Controls.Add(titleLabel);
+            mainPanel.Controls.Add(titleLabel);
 
             // Grid
-            _usersGrid = new DataGridView
-            {
-                Location = new System.Drawing.Point(20, 60),
-                Size = new System.Drawing.Size(850, 350),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            };
+            _usersGrid = new DataGridView { Dock = DockStyle.Fill };
+            ThemeManager.StyleGrid(_usersGrid);
 
             _usersGrid.Columns.Add("UserId", "ID");
             _usersGrid.Columns.Add("FullName", "Full Name");
@@ -64,82 +59,36 @@ namespace FASTSocietiesSystem.UI.Forms
             _usersGrid.Columns.Add("Status", "Status");
             _usersGrid.Columns.Add("CreatedDate", "Created");
 
-            this.Controls.Add(_usersGrid);
+            mainPanel.Controls.Add(_usersGrid);
 
-            // Create User Button
-            Button createButton = new Button
-            {
-                Text = "Create User",
-                Location = new System.Drawing.Point(20, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White
-            };
+            // Bottom Actions
+            Panel actionPanel = new Panel { Dock = DockStyle.Bottom, Height = 80, Padding = new Padding(0, 20, 0, 0) };
+            mainPanel.Controls.Add(actionPanel);
+
+            Button createButton = new Button { Text = "CREATE", Width = 150, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(createButton);
             createButton.Click += CreateButton_Click;
-            this.Controls.Add(createButton);
+            actionPanel.Controls.Add(createButton);
 
-            // Suspend User Button
-            Button suspendButton = new Button
-            {
-                Text = "Suspend User",
-                Location = new System.Drawing.Point(180, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Orange,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button suspendButton = new Button { Text = "SUSPEND", Width = 130, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(suspendButton, false);
             suspendButton.Click += SuspendButton_Click;
-            this.Controls.Add(suspendButton);
+            actionPanel.Controls.Add(suspendButton);
 
-            // View Details Button
-            Button viewButton = new Button
-            {
-                Text = "View Details",
-                Location = new System.Drawing.Point(340, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Blue,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button activateButton = new Button { Text = "ACTIVATE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(activateButton, true); // Active use cyan
+            activateButton.Click += ActivateButton_Click;
+            actionPanel.Controls.Add(activateButton);
+
+            Button viewButton = new Button { Text = "VIEW", Width = 100, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(viewButton, false);
             viewButton.Click += ViewButton_Click;
-            this.Controls.Add(viewButton);
+            actionPanel.Controls.Add(viewButton);
 
-            // Refresh Button
-            Button refreshButton = new Button
-            {
-                Text = "Refresh",
-                Location = new System.Drawing.Point(500, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.CornflowerBlue,
-                ForeColor = System.Drawing.Color.White
-            };
-            refreshButton.Click += (s, e) => LoadUsers();
-            this.Controls.Add(refreshButton);
-
-            // Close Button
-            Button closeButton = new Button
-            {
-                Text = "Close",
-                Location = new System.Drawing.Point(690, 420),
-                Size = new System.Drawing.Size(180, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button closeButton = new Button { Text = "CLOSE", Width = 120, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(closeButton, false);
             closeButton.Click += (s, e) => this.Close();
-            this.Controls.Add(closeButton);
-
-            // Status Label
-            Label statusLabel = new Label
-            {
-                Text = "Total Users: 0",
-                Location = new System.Drawing.Point(20, 470),
-                Size = new System.Drawing.Size(850, 25),
-                Font = new System.Drawing.Font("Segoe UI", 10)
-            };
-            this.Controls.Add(statusLabel);
+            actionPanel.Controls.Add(closeButton);
 
             this.ResumeLayout(false);
         }
@@ -177,17 +126,12 @@ namespace FASTSocietiesSystem.UI.Forms
 
         private void CreateButton_Click(object sender, EventArgs e)
         {
-            string email = Microsoft.VisualBasic.Interaction.InputBox("Enter email:", "Create User");
-            if (string.IsNullOrEmpty(email)) return;
-
-            try
+            using (AddUserForm form = new AddUserForm())
             {
-                UIHelpers.ShowInfo("User creation form - would open separate form");
-                LoadUsers();
-            }
-            catch (Exception ex)
-            {
-                UIHelpers.ShowError($"Failed to create user: {ex.Message}");
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadUsers();
+                }
             }
         }
 
@@ -221,6 +165,39 @@ namespace FASTSocietiesSystem.UI.Forms
             catch (Exception ex)
             {
                 UIHelpers.ShowError($"Failed to suspend user: {ex.Message}");
+            }
+        }
+
+        private void ActivateButton_Click(object sender, EventArgs e)
+        {
+            if (_usersGrid.SelectedRows.Count == 0)
+            {
+                UIHelpers.ShowError("Please select a user to activate.");
+                return;
+            }
+
+            try
+            {
+                int userId = (int)_usersGrid.SelectedRows[0].Cells[0].Value;
+                string userName = (string)_usersGrid.SelectedRows[0].Cells[1].Value;
+                string status = (string)_usersGrid.SelectedRows[0].Cells[4].Value;
+
+                if (status == "Active")
+                {
+                    UIHelpers.ShowError("User is already active.");
+                    return;
+                }
+
+                if (UIHelpers.ShowConfirm($"Reactivate account for {userName}?", "Confirm Activation"))
+                {
+                    _userRepository.ActivateUser(userId);
+                    UIHelpers.ShowInfo($"{userName}'s account has been restored.");
+                    LoadUsers();
+                }
+            }
+            catch (Exception ex)
+            {
+                UIHelpers.ShowError($"Failed to activate user: {ex.Message}");
             }
         }
 

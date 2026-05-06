@@ -23,116 +23,117 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "Register - FAST Societies Management System";
-            this.Size = new System.Drawing.Size(700, 900);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            this.Text = "Register - FAST Societies";
+            this.Size = new System.Drawing.Size(600, 800);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = System.Drawing.Color.White;
+            this.BackColor = ThemeManager.Background;
 
-            int yPos = 30;
-            
-            // Title
-            Label titleLabel = new Label
+            TableLayoutPanel mainLayout = new TableLayoutPanel
             {
-                Text = "Student Registration",
-                Font = new System.Drawing.Font("Segoe UI", 22, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(30, yPos),
-                Size = new System.Drawing.Size(640, 50),
-                ForeColor = System.Drawing.Color.DarkGreen,
-                TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 4,
+                Padding = new Padding(60, 40, 60, 40)
             };
-            this.Controls.Add(titleLabel);
-            yPos += 70;
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Title
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40)); // Subtitle
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Fields
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Buttons
+            this.Controls.Add(mainLayout);
 
-            // First Name
-            Label firstNameLabel = new Label { Text = "First Name:", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(150, 25), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(firstNameLabel);
-            yPos += 30;
-            TextBox firstNameTextBox = new TextBox { Name = "firstNameTextBox", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(640, 35), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(firstNameTextBox);
-            yPos += 50;
-
-            // Last Name
-            Label lastNameLabel = new Label { Text = "Last Name:", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(150, 25), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(lastNameLabel);
-            yPos += 30;
-            TextBox lastNameTextBox = new TextBox { Name = "lastNameTextBox", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(640, 35), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(lastNameTextBox);
-            yPos += 50;
-
-            // Email
-            Label emailLabel = new Label { Text = "Email:", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(150, 25), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(emailLabel);
-            yPos += 30;
-            TextBox emailTextBox = new TextBox { Name = "emailTextBox", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(640, 35), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(emailTextBox);
-            yPos += 50;
-
-            // Phone Number
-            Label phoneLabel = new Label { Text = "Phone (Optional):", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(150, 25), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(phoneLabel);
-            yPos += 30;
-            TextBox phoneTextBox = new TextBox { Name = "phoneTextBox", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(640, 35), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(phoneTextBox);
-            yPos += 50;
-
-            // Password
-            Label passwordLabel = new Label { Text = "Password:", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(150, 25), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(passwordLabel);
-            yPos += 30;
-            TextBox passwordTextBox = new TextBox { Name = "passwordTextBox", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(640, 35), UseSystemPasswordChar = true, Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(passwordTextBox);
-            yPos += 50;
-
-            // Confirm Password
-            Label confirmPasswordLabel = new Label { Text = "Confirm Password:", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(150, 25), Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(confirmPasswordLabel);
-            yPos += 30;
-            TextBox confirmPasswordTextBox = new TextBox { Name = "confirmPasswordTextBox", Location = new System.Drawing.Point(30, yPos), Size = new System.Drawing.Size(640, 35), UseSystemPasswordChar = true, Font = new System.Drawing.Font("Segoe UI", 11) };
-            this.Controls.Add(confirmPasswordTextBox);
-            yPos += 60;
-
-            // Register Button
-            Button registerButton = new Button
+            // Window Controls
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
             {
-                Text = "Register",
-                Location = new System.Drawing.Point(130, yPos),
-                Size = new System.Drawing.Size(200, 45),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White,
-                Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold)
+                Size = new Size(100, 40),
+                Location = new Point(500, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
             };
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
+
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => this.Close();
+            closeBtn.MouseEnter += (s, e) => closeBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            closeBtn.MouseLeave += (s, e) => closeBtn.ForeColor = ThemeManager.TextSecondary;
+            windowControls.Controls.Add(closeBtn);
+
+            Button minBtn = new Button { Text = "—", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 12, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            minBtn.FlatAppearance.BorderSize = 0;
+            minBtn.Click += (s, e) => this.WindowState = FormWindowState.Minimized;
+            windowControls.Controls.Add(minBtn);
+
+            Label titleLabel = new Label { Text = "Join the Community", Font = ThemeManager.HeaderFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Fill, TextAlign = ContentAlignment.BottomLeft };
+            mainLayout.Controls.Add(titleLabel, 0, 0);
+
+            Label subTitle = new Label { Text = "Create your student account", Font = ThemeManager.BodyFont, ForeColor = ThemeManager.TextSecondary, Dock = DockStyle.Fill, TextAlign = ContentAlignment.TopLeft };
+            mainLayout.Controls.Add(subTitle, 0, 1);
+
+            // Container for form fields
+            FlowLayoutPanel fieldsPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true,
+                Padding = new Padding(0, 20, 20, 0)
+            };
+            mainLayout.Controls.Add(fieldsPanel, 0, 2);
+
+            // Fields in desired order
+            string[] labels = { "FIRST NAME", "LAST NAME", "EMAIL ADDRESS", "PHONE NUMBER", "PASSWORD", "CONFIRM PASSWORD" };
+            string[] names = { "firstNameTextBox", "lastNameTextBox", "emailTextBox", "phoneTextBox", "passwordTextBox", "confirmPasswordTextBox" };
+            bool[] isPassword = { false, false, false, false, true, true };
+
+            for (int i = 0; i < labels.Length; i++)
+            {
+                Panel group = new Panel { Size = new Size(450, 80), Margin = new Padding(0, 0, 0, 10) };
+                Label lbl = new Label { Text = labels[i], Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Top, Height = 25 };
+                TextBox tb = new TextBox { Name = names[i], Dock = DockStyle.Bottom, Height = 40, UseSystemPasswordChar = isPassword[i] };
+                ThemeManager.StyleTextBox(tb);
+                
+                group.Controls.Add(lbl);
+                group.Controls.Add(tb);
+                fieldsPanel.Controls.Add(group);
+            }
+
+            // Buttons
+            Panel btnPanel = new Panel { Dock = DockStyle.Fill };
+            Button registerButton = new Button { Text = "REGISTER", Width = 200, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(registerButton);
             registerButton.Click += RegisterButton_Click;
-            this.Controls.Add(registerButton);
-
-            // Cancel Button
-            Button cancelButton = new Button
-            {
-                Text = "Cancel",
-                Location = new System.Drawing.Point(370, yPos),
-                Size = new System.Drawing.Size(200, 45),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White,
-                Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold)
-            };
+            
+            Button cancelButton = new Button { Text = "CANCEL", Width = 150, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(cancelButton, false);
             cancelButton.Click += (s, e) => this.Close();
-            this.Controls.Add(cancelButton);
+
+            btnPanel.Controls.Add(registerButton);
+            btnPanel.Controls.Add(cancelButton);
+            mainLayout.Controls.Add(btnPanel, 0, 3);
 
             this.ResumeLayout(false);
+        }
+
+        private Control FindControl(string name)
+        {
+            Control[] controls = this.Controls.Find(name, true);
+            return controls.Length > 0 ? controls[0] : null;
         }
 
         private void RegisterButton_Click(object sender, EventArgs e)
         {
             try
             {
-                string firstName = ((TextBox)this.Controls["firstNameTextBox"]).Text.Trim();
-                string lastName = ((TextBox)this.Controls["lastNameTextBox"]).Text.Trim();
-                string email = ((TextBox)this.Controls["emailTextBox"]).Text.Trim();
-                string phone = ((TextBox)this.Controls["phoneTextBox"]).Text.Trim();
-                string password = ((TextBox)this.Controls["passwordTextBox"]).Text;
-                string confirmPassword = ((TextBox)this.Controls["confirmPasswordTextBox"]).Text;
+                string firstName = ((TextBox)FindControl("firstNameTextBox")).Text.Trim();
+                string lastName = ((TextBox)FindControl("lastNameTextBox")).Text.Trim();
+                string email = ((TextBox)FindControl("emailTextBox")).Text.Trim();
+                string phone = ((TextBox)FindControl("phoneTextBox")).Text.Trim();
+                string password = ((TextBox)FindControl("passwordTextBox")).Text;
+                string confirmPassword = ((TextBox)FindControl("confirmPasswordTextBox")).Text;
 
                 // Validation
                 if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))

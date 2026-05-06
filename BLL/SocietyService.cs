@@ -31,7 +31,7 @@ namespace FASTSocietiesSystem.BLL
         /// <summary>
         /// Creates a new society (society head operation)
         /// </summary>
-        public int CreateSociety(string societyName, string description, int headId)
+        public int CreateSociety(string societyName, string description, int headId, string status = "Pending")
         {
             if (string.IsNullOrEmpty(societyName))
                 throw new ValidationException("Society name is required");
@@ -41,7 +41,16 @@ namespace FASTSocietiesSystem.BLL
                 throw new ValidationException("Society head must be a valid SocietyHead user");
 
             Society society = new Society(societyName, description, headId);
-            return _societyRepository.CreateSociety(society);
+            society.Status = status;
+            int societyId = _societyRepository.CreateSociety(society);
+            
+            // If created as Pending (default), request approval
+            if (status == "Pending")
+            {
+                new ApprovalService().RequestSocietyApproval(societyId, headId, "New society registration");
+            }
+            
+            return societyId;
         }
 
         /// <summary>
@@ -130,7 +139,13 @@ namespace FASTSocietiesSystem.BLL
                 Capacity = capacity
             };
 
-            return _eventRepository.CreateEvent(eventObj);
+            int eventId = _eventRepository.CreateEvent(eventObj);
+            
+            // Create approval request for the admin
+            Society society = _societyRepository.GetSocietyById(societyId);
+            new ApprovalService().RequestEventApproval(eventId, society.HeadId, $"New event: {eventTitle}");
+            
+            return eventId;
         }
 
         /// <summary>
@@ -289,6 +304,46 @@ namespace FASTSocietiesSystem.BLL
         public int GetMemberCount(int societyId)
         {
             return _societyRepository.GetSocietyMemberCount(societyId);
+        }
+
+        /// <summary>
+        /// Gets all societies in the system (Admin only)
+        /// </summary>
+        public List<Society> GetAllSocieties()
+        {
+            return _societyRepository.GetAllSocieties();
+        }
+
+        /// <summary>
+        /// Suspends a society
+        /// </summary>
+        public bool SuspendSociety(int societyId)
+        {
+            return _societyRepository.SuspendSociety(societyId);
+        }
+
+        /// <summary>
+        /// Activates/Unsuspends a society
+        /// </summary>
+        public bool ActivateSociety(int societyId)
+        {
+            return _societyRepository.ActivateSociety(societyId);
+        }
+
+        /// <summary>
+        /// Deletes a society
+        /// </summary>
+        public bool DeleteSociety(int societyId)
+        {
+            return _societyRepository.DeleteSociety(societyId);
+        }
+
+        /// <summary>
+        /// Approves a society
+        /// </summary>
+        public bool ApproveSociety(int societyId)
+        {
+            return _societyRepository.ApproveSociety(societyId);
         }
     }
 }

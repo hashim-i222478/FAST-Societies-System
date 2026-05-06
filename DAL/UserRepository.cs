@@ -279,6 +279,34 @@ namespace FASTSocietiesSystem.DAL
         }
 
         /// <summary>
+        /// Activates a user account
+        /// </summary>
+        public bool ActivateUser(int userId)
+        {
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"UPDATE [User] SET Status = 'Active', UpdatedDate = @UpdatedDate WHERE UserId = @UserId";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ActivateUser Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Checks if email exists in the database
         /// </summary>
         public bool EmailExists(string email)

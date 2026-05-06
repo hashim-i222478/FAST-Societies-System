@@ -62,6 +62,10 @@ namespace FASTSocietiesSystem.UI.Forms
             _requestsGrid.Columns.Add("JoinDate", "Applied Date");
             _requestsGrid.Columns.Add("Status", "Status");
             _requestsGrid.Columns.Add("MembershipId", "MembershipId");
+            _requestsGrid.Columns.Add("SocietyId", "SocietyId");
+            
+            _requestsGrid.Columns["MembershipId"].Visible = false;
+            _requestsGrid.Columns["SocietyId"].Visible = false;
 
             this.Controls.Add(_requestsGrid);
 
@@ -142,7 +146,8 @@ namespace FASTSocietiesSystem.UI.Forms
                             student.Email,
                             UIHelpers.FormatDate(request.JoinDate),
                             request.Status,
-                            request.MembershipId
+                            request.MembershipId,
+                            request.SocietyId
                         );
                     }
                 }
@@ -169,11 +174,12 @@ namespace FASTSocietiesSystem.UI.Forms
             try
             {
                 int membershipId = (int)_requestsGrid.SelectedRows[0].Cells[4].Value;
+                int societyId = (int)_requestsGrid.SelectedRows[0].Cells[5].Value;
                 string studentName = (string)_requestsGrid.SelectedRows[0].Cells[0].Value;
 
                 if (UIHelpers.ShowConfirm($"Approve membership for {studentName}?"))
                 {
-                    _societyService.ApproveMembership(membershipId, -1); // Get society id from membership
+                    _societyService.ApproveMembership(membershipId, societyId);
                     UIHelpers.ShowInfo("Membership approved successfully");
                     LoadRequests();
                 }
@@ -195,11 +201,12 @@ namespace FASTSocietiesSystem.UI.Forms
             try
             {
                 int membershipId = (int)_requestsGrid.SelectedRows[0].Cells[4].Value;
+                int societyId = (int)_requestsGrid.SelectedRows[0].Cells[5].Value;
                 string studentName = (string)_requestsGrid.SelectedRows[0].Cells[0].Value;
 
                 if (UIHelpers.ShowConfirm($"Reject membership for {studentName}?"))
                 {
-                    _societyService.RejectMembership(membershipId, -1);
+                    _societyService.RejectMembership(membershipId, societyId);
                     UIHelpers.ShowInfo("Membership rejected");
                     LoadRequests();
                 }

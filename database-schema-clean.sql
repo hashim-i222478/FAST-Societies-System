@@ -228,6 +228,24 @@ CREATE INDEX IX_Announcement_CreatedDate ON [Announcement](CreatedDate);
 GO
 
 -- ============================================================================
+-- SYSTEM LOG TABLE (Tracks system activities and transactions)
+-- ============================================================================
+GO
+
+CREATE TABLE [SystemLog] (
+    LogId INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT,
+    Action NVARCHAR(100) NOT NULL,
+    Details NVARCHAR(500),
+    Timestamp DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_SystemLog_User FOREIGN KEY (UserId) REFERENCES [User](UserId)
+);
+
+CREATE INDEX IX_SystemLog_Timestamp ON [SystemLog](Timestamp);
+CREATE INDEX IX_SystemLog_UserId ON [SystemLog](UserId);
+GO
+
+-- ============================================================================
 -- APPROVAL REQUEST TABLE (For event and society approvals)
 -- ============================================================================
 GO

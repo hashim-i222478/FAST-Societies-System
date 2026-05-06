@@ -274,6 +274,95 @@ namespace FASTSocietiesSystem.DAL
         }
 
         /// <summary>
+        /// Activates/Unsuspends a society
+        /// </summary>
+        public bool ActivateSociety(int societyId)
+        {
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"UPDATE [Society] SET Status = 'Active', UpdatedDate = @UpdatedDate WHERE SocietyId = @SocietyId";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ActivateSociety Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Permanently deletes a society
+        /// </summary>
+        public bool DeleteSociety(int societyId)
+        {
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"DELETE FROM [Society] WHERE SocietyId = @SocietyId";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DeleteSociety Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Gets all societies in the system (Admin only)
+        /// </summary>
+        public List<Society> GetAllSocieties()
+        {
+            List<Society> societies = new List<Society>();
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"SELECT SocietyId, SocietyName, Description, HeadId, Logo, Status, CreatedDate, UpdatedDate 
+                                   FROM [Society] ORDER BY Status, SocietyName";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                societies.Add(MapReaderToSociety(reader));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetAllSocieties Error: {ex.Message}");
+                throw;
+            }
+
+            return societies;
+        }
+
+        /// <summary>
         /// Gets count of members in a society
         /// </summary>
         public int GetSocietyMemberCount(int societyId)

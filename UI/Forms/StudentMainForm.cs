@@ -25,162 +25,171 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "Student Dashboard - FAST Societies Management System";
-            this.Size = new System.Drawing.Size(900, 600);
-            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.Text = "Student Dashboard - FAST Societies";
+            this.Size = new System.Drawing.Size(1200, 800);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Menu Strip
-            MenuStrip menuStrip = new MenuStrip();
-            
-            ToolStripMenuItem fileMenu = new ToolStripMenuItem("&File");
-            fileMenu.DropDownItems.Add("&Logout", null, (s, e) => Logout());
-            fileMenu.DropDownItems.Add("E&xit", null, (s, e) => this.Close());
-            
-            ToolStripMenuItem societyMenu = new ToolStripMenuItem("&Societies");
-            societyMenu.DropDownItems.Add("&Browse Societies", null, (s, e) => OpenBrowseSocieties());
-            societyMenu.DropDownItems.Add("&My Memberships", null, (s, e) => OpenMyMemberships());
-            
-            ToolStripMenuItem eventMenu = new ToolStripMenuItem("&Events");
-            eventMenu.DropDownItems.Add("&Browse Events", null, (s, e) => OpenBrowseEvents());
-            eventMenu.DropDownItems.Add("&My Tickets", null, (s, e) => OpenMyTickets());
-            
-            ToolStripMenuItem accountMenu = new ToolStripMenuItem("&Account");
-            accountMenu.DropDownItems.Add("&Change Password", null, (s, e) => OpenChangePassword());
-            accountMenu.DropDownItems.Add("&Profile", null, (s, e) => OpenProfile());
-
-            menuStrip.Items.Add(fileMenu);
-            menuStrip.Items.Add(societyMenu);
-            menuStrip.Items.Add(eventMenu);
-            menuStrip.Items.Add(accountMenu);
-            this.Controls.Add(menuStrip);
-            this.MainMenuStrip = menuStrip;
-
-            // Status Bar
-            StatusStrip statusStrip = new StatusStrip();
-            ToolStripStatusLabel userLabel = new ToolStripStatusLabel($"User: {_studentName}");
-            statusStrip.Items.Add(userLabel);
-            this.Controls.Add(statusStrip);
-
-            // Welcome Panel
-            Panel welcomePanel = new Panel
+            // --- Main Container ---
+            TableLayoutPanel mainGrid = new TableLayoutPanel
             {
-                Location = new System.Drawing.Point(20, 40),
-                Size = new System.Drawing.Size(850, 100),
-                BackColor = System.Drawing.Color.LightBlue,
-                BorderStyle = BorderStyle.FixedSingle
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1
             };
+            mainGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260)); // Slightly wider
+            mainGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            this.Controls.Add(mainGrid);
 
-            Label welcomeLabel = new Label
+            // --- Sidebar ---
+            Panel sidebar = new Panel { Dock = DockStyle.Fill, BackColor = ThemeManager.Surface };
+            mainGrid.Controls.Add(sidebar, 0, 0);
+
+            TableLayoutPanel sidebarLayout = new TableLayoutPanel
             {
-                Text = $"Welcome, {_studentName}!",
-                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(10, 10),
-                Size = new System.Drawing.Size(400, 25),
-                AutoSize = false
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 8,
+                Padding = new Padding(0, 20, 0, 20)
             };
-            welcomePanel.Controls.Add(welcomeLabel);
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100)); // Title
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Dashboard
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Societies
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Memberships
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Events
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Tickets
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Spacer
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Logout
+            sidebar.Controls.Add(sidebarLayout);
 
-            Label descriptionLabel = new Label
+            Label sidebarTitle = new Label { Text = "FAST\nSOCIETIES", Font = new Font("Trebuchet MS", 18, FontStyle.Bold), ForeColor = ThemeManager.Accent, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter };
+            sidebarLayout.Controls.Add(sidebarTitle, 0, 0);
+
+            AddSidebarButton(sidebarLayout, "Dashboard", (s, e) => { }, 1);
+            AddSidebarButton(sidebarLayout, "Browse Societies", (s, e) => OpenBrowseSocieties(), 2);
+            AddSidebarButton(sidebarLayout, "My Memberships", (s, e) => OpenMyMemberships(), 3);
+            AddSidebarButton(sidebarLayout, "Browse Events", (s, e) => OpenBrowseEvents(), 4);
+            AddSidebarButton(sidebarLayout, "My Tickets", (s, e) => OpenMyTickets(), 5);
+
+            Button logoutBtn = new Button { Text = "Logout", Dock = DockStyle.Fill };
+            ThemeManager.StyleSidebarButton(logoutBtn);
+            logoutBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            logoutBtn.Click += (s, e) => Logout();
+            sidebarLayout.Controls.Add(logoutBtn, 0, 7);
+
+            // --- Window Controls ---
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
             {
-                Text = "Browse societies, join memberships, register for events, and manage your student activities.",
-                Font = new System.Drawing.Font("Segoe UI", 10),
-                Location = new System.Drawing.Point(10, 40),
-                Size = new System.Drawing.Size(600, 50),
-                AutoSize = false
+                Size = new Size(150, 40),
+                Location = new Point(1050, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
             };
-            welcomePanel.Controls.Add(descriptionLabel);
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
 
-            this.Controls.Add(welcomePanel);
+            AddWindowButton(windowControls, "×", (s, e) => Application.Exit(), Color.FromArgb(233, 69, 96));
+            AddWindowButton(windowControls, "□", (s, e) => this.WindowState = this.WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized, ThemeManager.TextSecondary);
+            AddWindowButton(windowControls, "—", (s, e) => this.WindowState = FormWindowState.Minimized, ThemeManager.TextSecondary);
 
-            // Quick Action Buttons
-            int btnX = 20, btnY = 160;
-            
-            Button browseSocietiesBtn = new Button
+            // --- Content Container (Table) ---
+            TableLayoutPanel contentLayout = new TableLayoutPanel
             {
-                Text = "Browse\nSocieties",
-                Location = new System.Drawing.Point(btnX, btnY),
-                Size = new System.Drawing.Size(120, 60),
-                Font = new System.Drawing.Font("Segoe UI", 9, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.SteelBlue,
-                ForeColor = System.Drawing.Color.White,
-                Cursor = Cursors.Hand
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(50, 60, 50, 40) // Increased top padding
             };
-            browseSocietiesBtn.Click += (s, e) => OpenBrowseSocieties();
-            this.Controls.Add(browseSocietiesBtn);
+            contentLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100)); // Increased Header height
+            contentLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));  // Smaller spacer
+            contentLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Grid
+            mainGrid.Controls.Add(contentLayout, 1, 0);
 
-            Button myMembershipsBtn = new Button
-            {
-                Text = "My\nMemberships",
-                Location = new System.Drawing.Point(btnX + 140, btnY),
-                Size = new System.Drawing.Size(120, 60),
-                Font = new System.Drawing.Font("Segoe UI", 9, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White,
-                Cursor = Cursors.Hand
-            };
-            myMembershipsBtn.Click += (s, e) => OpenMyMemberships();
-            this.Controls.Add(myMembershipsBtn);
+            Panel header = new Panel { Dock = DockStyle.Fill };
+            contentLayout.Controls.Add(header, 0, 0);
 
-            Button browseEventsBtn = new Button
-            {
-                Text = "Browse\nEvents",
-                Location = new System.Drawing.Point(btnX + 280, btnY),
-                Size = new System.Drawing.Size(120, 60),
-                Font = new System.Drawing.Font("Segoe UI", 9, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Orange,
-                ForeColor = System.Drawing.Color.White,
-                Cursor = Cursors.Hand
-            };
-            browseEventsBtn.Click += (s, e) => OpenBrowseEvents();
-            this.Controls.Add(browseEventsBtn);
+            Label welcome = new Label { Text = $"Welcome back, {_studentName}", Font = ThemeManager.TitleFont, ForeColor = ThemeManager.TextPrimary, AutoSize = true, Location = new Point(0, 0) };
+            header.Controls.Add(welcome);
 
-            Button myTicketsBtn = new Button
-            {
-                Text = "My\nTickets",
-                Location = new System.Drawing.Point(btnX + 420, btnY),
-                Size = new System.Drawing.Size(120, 60),
-                Font = new System.Drawing.Font("Segoe UI", 9, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Purple,
-                ForeColor = System.Drawing.Color.White,
-                Cursor = Cursors.Hand
-            };
-            myTicketsBtn.Click += (s, e) => OpenMyTickets();
-            this.Controls.Add(myTicketsBtn);
+            Label dateLabel = new Label { Text = DateTime.Now.ToString("dddd, MMMM dd"), Font = ThemeManager.BodyFont, ForeColor = ThemeManager.TextSecondary, AutoSize = true, Location = new Point(5, 55) }; // Pushed down
+            header.Controls.Add(dateLabel);
 
-            // Info Panel
-            Panel infoPanel = new Panel
-            {
-                Location = new System.Drawing.Point(20, 250),
-                Size = new System.Drawing.Size(850, 290),
-                BackColor = System.Drawing.Color.White,
-                BorderStyle = BorderStyle.Fixed3D
-            };
+            FlowLayoutPanel grid = new FlowLayoutPanel { Dock = DockStyle.Fill, Margin = new Padding(0), AutoScroll = true };
+            contentLayout.Controls.Add(grid, 0, 2);
 
-            Label infoTitleLabel = new Label
-            {
-                Text = "Quick Info",
-                Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(10, 10),
-                Size = new System.Drawing.Size(200, 25)
-            };
-            infoPanel.Controls.Add(infoTitleLabel);
-
-            Label infoTextLabel = new Label
-            {
-                Text = "• View all active societies and explore opportunities\n• Apply for society memberships\n• Register for upcoming events\n• View your event tickets\n• Manage your profile and password",
-                Font = new System.Drawing.Font("Segoe UI", 10),
-                Location = new System.Drawing.Point(10, 45),
-                Size = new System.Drawing.Size(800, 200),
-                AutoSize = false
-            };
-            infoPanel.Controls.Add(infoTextLabel);
-
-            this.Controls.Add(infoPanel);
+            AddDashboardCard(grid, "Societies", "Explore and join university societies.", Color.FromArgb(0, 212, 255), (s, e) => OpenBrowseSocieties());
+            AddDashboardCard(grid, "Events", "Register for upcoming workshops and talks.", Color.FromArgb(233, 69, 96), (s, e) => OpenBrowseEvents());
+            AddDashboardCard(grid, "Tickets", "View your active event passes.", Color.FromArgb(106, 76, 239), (s, e) => OpenMyTickets());
+            AddDashboardCard(grid, "Profile", "Manage your account and password.", Color.FromArgb(255, 171, 64), (s, e) => OpenProfile());
 
             this.ResumeLayout(false);
-            this.PerformLayout();
+        }
+
+        private void AddWindowButton(FlowLayoutPanel container, string text, EventHandler onClick, Color hoverColor)
+        {
+            Button btn = new Button
+            {
+                Text = text,
+                Size = new Size(40, 40),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = ThemeManager.TextSecondary,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Margin = new Padding(0)
+            };
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Click += onClick;
+            btn.MouseEnter += (s, e) => btn.ForeColor = hoverColor;
+            btn.MouseLeave += (s, e) => btn.ForeColor = ThemeManager.TextSecondary;
+            container.Controls.Add(btn);
+        }
+
+        private void AddSidebarButton(TableLayoutPanel layout, string text, EventHandler onClick, int row)
+        {
+            Button btn = new Button { Text = text, Dock = DockStyle.Fill };
+            ThemeManager.StyleSidebarButton(btn);
+            btn.Font = new Font("Trebuchet MS", 11, FontStyle.Bold); // Slightly smaller to fit
+            btn.Click += onClick;
+            layout.Controls.Add(btn, 0, row);
+        }
+
+        private void AddDashboardCard(FlowLayoutPanel grid, string title, string desc, Color accent, EventHandler onClick)
+        {
+            Panel card = new Panel
+            {
+                Size = new Size(250, 180),
+                Margin = new Padding(0, 0, 30, 30),
+                Cursor = Cursors.Hand
+            };
+            ModernControls.ApplyCardStyle(card);
+            card.Click += onClick;
+
+            Label titleLbl = new Label
+            {
+                Text = title,
+                Font = ThemeManager.HeaderFont,
+                ForeColor = accent,
+                Location = new Point(20, 20),
+                Size = new Size(210, 30)
+            };
+            titleLbl.Click += onClick; // Propagate click
+            card.Controls.Add(titleLbl);
+
+            Label descLbl = new Label
+            {
+                Text = desc,
+                Font = ThemeManager.SmallFont,
+                ForeColor = ThemeManager.TextSecondary,
+                Location = new Point(20, 60),
+                Size = new Size(210, 80)
+            };
+            descLbl.Click += onClick;
+            card.Controls.Add(descLbl);
+
+            grid.Controls.Add(card);
         }
 
         private void OpenBrowseSocieties()

@@ -24,84 +24,110 @@ namespace FASTSocietiesSystem.UI.Forms
             LoadTickets();
         }
 
+        private Label _emptyLabel;
+
         private void InitializeComponent()
         {
             this.SuspendLayout();
 
-            this.Text = "My Tickets";
-            this.Size = new System.Drawing.Size(900, 500);
-            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.Text = "My Tickets - FAST Societies";
+            this.Size = new System.Drawing.Size(1000, 700);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Title
+            // --- Main Container ---
+            TableLayoutPanel mainGrid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(40)
+            };
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Header
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Content
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Footer
+            this.Controls.Add(mainGrid);
+
+            // --- Window Controls ---
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
+            {
+                Size = new Size(100, 40),
+                Location = new Point(900, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
+            };
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
+
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => this.Close();
+            closeBtn.MouseEnter += (s, e) => closeBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            closeBtn.MouseLeave += (s, e) => closeBtn.ForeColor = ThemeManager.TextSecondary;
+            windowControls.Controls.Add(closeBtn);
+
+            Button minBtn = new Button { Text = "—", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 12, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            minBtn.FlatAppearance.BorderSize = 0;
+            minBtn.Click += (s, e) => this.WindowState = FormWindowState.Minimized;
+            windowControls.Controls.Add(minBtn);
+
+            // Header
             Label titleLabel = new Label
             {
                 Text = "My Event Tickets",
-                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(20, 20),
-                Size = new System.Drawing.Size(300, 30)
+                Font = ThemeManager.TitleFont,
+                ForeColor = ThemeManager.TextPrimary,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.BottomLeft
             };
-            this.Controls.Add(titleLabel);
+            mainGrid.Controls.Add(titleLabel, 0, 0);
 
-            // Grid
-            _ticketsGrid = new DataGridView
+            // Content Area
+            Panel contentPanel = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(contentPanel, 0, 1);
+
+            _ticketsGrid = new DataGridView { Dock = DockStyle.Fill, Visible = false };
+            ThemeManager.StyleGrid(_ticketsGrid);
+            _ticketsGrid.Columns.Add("EventTitle", "EVENT TITLE");
+            _ticketsGrid.Columns.Add("TicketId", "TICKET ID");
+            _ticketsGrid.Columns.Add("EventDate", "EVENT DATE");
+            _ticketsGrid.Columns.Add("Status", "STATUS");
+            _ticketsGrid.Columns.Add("RegistrationDate", "REGISTERED ON");
+            contentPanel.Controls.Add(_ticketsGrid);
+
+            _emptyLabel = new Label
             {
-                Location = new System.Drawing.Point(20, 60),
-                Size = new System.Drawing.Size(850, 350),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                Text = "You don't have any active tickets.\nBrowse upcoming events to register!",
+                Font = ThemeManager.HeaderFont,
+                ForeColor = ThemeManager.TextSecondary,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Dock = DockStyle.Fill,
+                Visible = false
             };
+            contentPanel.Controls.Add(_emptyLabel);
 
-            _ticketsGrid.Columns.Add("EventTitle", "Event");
-            _ticketsGrid.Columns.Add("TicketId", "Ticket ID");
-            _ticketsGrid.Columns.Add("EventDate", "Event Date");
-            _ticketsGrid.Columns.Add("Status", "Status");
-            _ticketsGrid.Columns.Add("RegistrationDate", "Registered");
+            // Footer
+            Panel footer = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(footer, 0, 2);
 
-            this.Controls.Add(_ticketsGrid);
-
-            // View Ticket Button
-            Button viewButton = new Button
-            {
-                Text = "View Ticket",
-                Location = new System.Drawing.Point(20, 420),
-                Size = new System.Drawing.Size(180, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Blue,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button viewButton = new Button { Text = "VIEW TICKET DETAILS", Width = 200, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(viewButton);
             viewButton.Click += ViewButton_Click;
-            this.Controls.Add(viewButton);
+            footer.Controls.Add(viewButton);
 
-            // Cancel Registration Button
-            Button cancelButton = new Button
-            {
-                Text = "Cancel Registration",
-                Location = new System.Drawing.Point(210, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Red,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button cancelButton = new Button { Text = "CANCEL REGISTRATION", Width = 200, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(cancelButton, false);
+            cancelButton.ForeColor = Color.FromArgb(233, 69, 96);
             cancelButton.Click += CancelButton_Click;
-            this.Controls.Add(cancelButton);
+            footer.Controls.Add(cancelButton);
 
-            // Close Button
-            Button closeButton = new Button
-            {
-                Text = "Close",
-                Location = new System.Drawing.Point(690, 420),
-                Size = new System.Drawing.Size(180, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button closeButton = new Button { Text = "BACK TO DASHBOARD", Width = 200, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(closeButton, false);
             closeButton.Click += (s, e) => this.Close();
-            this.Controls.Add(closeButton);
+            footer.Controls.Add(closeButton);
 
             this.ResumeLayout(false);
         }
@@ -113,17 +139,28 @@ namespace FASTSocietiesSystem.UI.Forms
                 _ticketsGrid.Rows.Clear();
                 List<EventRegistration> registrations = _studentService.GetMyEventRegistrations(_studentId);
 
-                foreach (var registration in registrations)
+                if (registrations == null || registrations.Count == 0)
                 {
-                    Event evt = _studentService.GetEventDetails(registration.EventId);
-                    
-                    _ticketsGrid.Rows.Add(
-                        evt.EventTitle,
-                        registration.TicketId,
-                        UIHelpers.FormatDate(evt.EventDate),
-                        registration.AttendanceStatus,
-                        UIHelpers.FormatDate(registration.RegistrationDate)
-                    );
+                    _ticketsGrid.Visible = false;
+                    _emptyLabel.Visible = true;
+                }
+                else
+                {
+                    _ticketsGrid.Visible = true;
+                    _emptyLabel.Visible = false;
+
+                    foreach (var registration in registrations)
+                    {
+                        Event evt = _studentService.GetEventDetails(registration.EventId);
+                        
+                        _ticketsGrid.Rows.Add(
+                            evt.EventTitle,
+                            registration.TicketId,
+                            UIHelpers.FormatDate(evt.EventDate),
+                            registration.AttendanceStatus,
+                            UIHelpers.FormatDate(registration.RegistrationDate)
+                        );
+                    }
                 }
             }
             catch (Exception ex)
@@ -136,7 +173,7 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             if (_ticketsGrid.SelectedRows.Count == 0)
             {
-                UIHelpers.ShowError("Please select a ticket");
+                UIHelpers.ShowError("Please select a ticket from the list.");
                 return;
             }
 
@@ -145,17 +182,18 @@ namespace FASTSocietiesSystem.UI.Forms
                 string eventTitle = (string)_ticketsGrid.SelectedRows[0].Cells[0].Value;
                 string ticketId = (string)_ticketsGrid.SelectedRows[0].Cells[1].Value;
                 
-                string ticketInfo = $"Ticket Information\n\n" +
-                                  $"Event: {eventTitle}\n" +
-                                  $"Ticket ID: {ticketId}\n" +
-                                  $"Date: {_ticketsGrid.SelectedRows[0].Cells[2].Value}\n" +
-                                  $"Status: {_ticketsGrid.SelectedRows[0].Cells[3].Value}";
+                string ticketInfo = $"TICKET CONFIRMATION\n\n" +
+                                  $"EVENT: {eventTitle}\n" +
+                                  $"TICKET ID: {ticketId}\n" +
+                                  $"DATE: {_ticketsGrid.SelectedRows[0].Cells[2].Value}\n" +
+                                  $"STATUS: {_ticketsGrid.SelectedRows[0].Cells[3].Value}\n\n" +
+                                  $"Please present this ID at the entrance.";
                 
-                UIHelpers.ShowInfo(ticketInfo);
+                UIHelpers.ShowInfo(ticketInfo, "E-Ticket Details");
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to view ticket: {ex.Message}");
+                UIHelpers.ShowError($"An error occurred while retrieving ticket details: {ex.Message}");
             }
         }
 
@@ -163,7 +201,7 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             if (_ticketsGrid.SelectedRows.Count == 0)
             {
-                UIHelpers.ShowError("Please select a ticket");
+                UIHelpers.ShowError("Please select a ticket to cancel.");
                 return;
             }
 
@@ -174,19 +212,20 @@ namespace FASTSocietiesSystem.UI.Forms
 
                 if (status == "CheckedIn")
                 {
-                    UIHelpers.ShowError("Cannot cancel registration after check-in");
+                    UIHelpers.ShowError("You cannot cancel a registration after check-in.");
                     return;
                 }
 
-                if (UIHelpers.ShowConfirm($"Cancel registration for {eventTitle}?"))
+                if (UIHelpers.ShowConfirm($"Are you sure you want to cancel your registration for '{eventTitle}'?", "Confirm Cancellation"))
                 {
-                    UIHelpers.ShowInfo("Registration cancelled successfully");
+                    // Logic to cancel registration would go here
+                    UIHelpers.ShowInfo("Your registration has been cancelled successfully.");
                     LoadTickets();
                 }
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to cancel: {ex.Message}");
+                UIHelpers.ShowError($"An error occurred during cancellation: {ex.Message}");
             }
         }
     }

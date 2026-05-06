@@ -21,109 +21,168 @@ namespace FASTSocietiesSystem.UI.Forms
             CenterToScreen();
         }
 
+        private TextBox emailTextBox;
+        private TextBox passwordTextBox;
+
         private void InitializeComponent()
         {
             this.SuspendLayout();
             
-            this.Text = "FAST Societies Management System - Login";
-            this.Size = new System.Drawing.Size(600, 550);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            // Form Setup
+            this.Text = "FAST Societies - Login";
+            this.Size = new System.Drawing.Size(950, 600);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = System.Drawing.Color.White;
+            this.BackColor = ThemeManager.Background;
 
-            // Title label
-            Label titleLabel = new Label
+            // --- Main Container ---
+            TableLayoutPanel mainGrid = new TableLayoutPanel
             {
-                Text = "Login",
-                Font = new System.Drawing.Font("Segoe UI", 28, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(50, 40),
-                Size = new System.Drawing.Size(500, 60),
-                ForeColor = System.Drawing.Color.DarkBlue,
-                TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent
             };
-            this.Controls.Add(titleLabel);
+            mainGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400));
+            mainGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            this.Controls.Add(mainGrid);
 
-            // Email Label
-            Label emailLabel = new Label
-            {
-                Text = "Email:",
-                Location = new System.Drawing.Point(80, 130),
-                Size = new System.Drawing.Size(150, 30),
-                Font = new System.Drawing.Font("Segoe UI", 12)
-            };
-            this.Controls.Add(emailLabel);
+            // --- Left Branding (Table 1) ---
+            Panel brandPanel = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(brandPanel, 0, 0);
+            ThemeManager.MakeGradientPanel(brandPanel);
 
-            // Email TextBox
-            TextBox emailTextBox = new TextBox
+            TableLayoutPanel brandLayout = new TableLayoutPanel
             {
-                Name = "emailTextBox",
-                Location = new System.Drawing.Point(80, 165),
-                Size = new System.Drawing.Size(440, 40),
-                Font = new System.Drawing.Font("Segoe UI", 12),
-                Padding = new Padding(5)
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 4,
+                BackColor = Color.Transparent,
+                Padding = new Padding(40)
             };
-            this.Controls.Add(emailTextBox);
+            brandLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50)); // Spacer
+            brandLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 180)); // Logo
+            brandLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // Title
+            brandLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50)); // Tagline/Spacer
+            brandPanel.Controls.Add(brandLayout);
 
-            // Password Label
-            Label passwordLabel = new Label
+            PictureBox logoBox = new PictureBox
             {
-                Text = "Password:",
-                Location = new System.Drawing.Point(80, 220),
-                Size = new System.Drawing.Size(150, 30),
-                Font = new System.Drawing.Font("Segoe UI", 12)
+                Size = new Size(160, 160),
+                Dock = DockStyle.Fill,
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Image = Image.FromFile("UI\\Assets\\Logo.png")
             };
-            this.Controls.Add(passwordLabel);
+            brandLayout.Controls.Add(logoBox, 0, 1);
 
-            // Password TextBox
-            TextBox passwordTextBox = new TextBox
+            Label brandTitle = new Label
             {
-                Name = "passwordTextBox",
-                Location = new System.Drawing.Point(80, 255),
-                Size = new System.Drawing.Size(440, 40),
-                Font = new System.Drawing.Font("Segoe UI", 12),
-                UseSystemPasswordChar = true,
-                Padding = new Padding(5)
+                Text = "FAST\nSOCIETIES",
+                Font = new Font("Trebuchet MS", 32, FontStyle.Bold),
+                ForeColor = ThemeManager.Accent,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
             };
-            this.Controls.Add(passwordTextBox);
+            brandLayout.Controls.Add(brandTitle, 0, 2);
 
-            // Login Button
-            Button loginButton = new Button
+            Label tagline = new Label
             {
-                Text = "Login",
-                Location = new System.Drawing.Point(80, 330),
-                Size = new System.Drawing.Size(200, 50),
-                Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.DodgerBlue,
-                ForeColor = System.Drawing.Color.White,
-                Cursor = Cursors.Hand
+                Text = "Empowering Student Communities",
+                Font = new Font("Segoe UI", 10, FontStyle.Italic),
+                ForeColor = ThemeManager.TextSecondary,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.TopCenter
             };
-            loginButton.Click += LoginButton_Click;
-            this.Controls.Add(loginButton);
+            brandLayout.Controls.Add(tagline, 0, 3);
 
-            // Register Button
-            Button registerButton = new Button
+            // --- Right Login (Table 2) ---
+            Panel loginPanel = new Panel { Dock = DockStyle.Fill, BackColor = ThemeManager.Background };
+            mainGrid.Controls.Add(loginPanel, 1, 0);
+
+            // Window Controls
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
             {
-                Text = "Register",
-                Location = new System.Drawing.Point(320, 330),
-                Size = new System.Drawing.Size(200, 50),
-                Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White,
-                Cursor = Cursors.Hand
+                Size = new Size(100, 40),
+                Location = new Point(450, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
             };
-            registerButton.Click += RegisterButton_Click;
-            this.Controls.Add(registerButton);
+            loginPanel.Controls.Add(windowControls);
+            windowControls.BringToFront();
+
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => Application.Exit();
+            closeBtn.MouseEnter += (s, e) => closeBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            closeBtn.MouseLeave += (s, e) => closeBtn.ForeColor = ThemeManager.TextSecondary;
+            windowControls.Controls.Add(closeBtn);
+
+            Button minBtn = new Button { Text = "—", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 12, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            minBtn.FlatAppearance.BorderSize = 0;
+            minBtn.Click += (s, e) => this.WindowState = FormWindowState.Minimized;
+            windowControls.Controls.Add(minBtn);
+
+            TableLayoutPanel loginLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 7,
+                Padding = new Padding(60, 80, 60, 60)
+            };
+            loginLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Header
+            loginLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Subheader
+            loginLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40)); // Spacer
+            loginLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 85)); // Email
+            loginLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 85)); // Password
+            loginLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40)); // Spacer
+            loginLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Buttons
+            loginPanel.Controls.Add(loginLayout);
+
+            Label loginHeader = new Label { Text = "Welcome Back", Font = ThemeManager.TitleFont, ForeColor = ThemeManager.TextPrimary, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
+            loginLayout.Controls.Add(loginHeader, 0, 0);
+
+            Label subHeader = new Label { Text = "Please sign in to continue", Font = ThemeManager.BodyFont, ForeColor = ThemeManager.TextSecondary, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
+            loginLayout.Controls.Add(subHeader, 0, 1);
+
+            // Email
+            Panel emailGrp = new Panel { Dock = DockStyle.Fill };
+            Label emailLbl = new Label { Text = "EMAIL ADDRESS", Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Top, Height = 25 };
+            emailTextBox = new TextBox { Dock = DockStyle.Bottom, Height = 40 };
+            ThemeManager.StyleTextBox(emailTextBox);
+            emailGrp.Controls.Add(emailLbl);
+            emailGrp.Controls.Add(emailTextBox);
+            loginLayout.Controls.Add(emailGrp, 0, 3);
+
+            // Password
+            Panel passGrp = new Panel { Dock = DockStyle.Fill };
+            Label passLbl = new Label { Text = "PASSWORD", Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Top, Height = 25 };
+            passwordTextBox = new TextBox { Dock = DockStyle.Bottom, Height = 40, UseSystemPasswordChar = true };
+            ThemeManager.StyleTextBox(passwordTextBox);
+            passGrp.Controls.Add(passLbl);
+            passGrp.Controls.Add(passwordTextBox);
+            loginLayout.Controls.Add(passGrp, 0, 4);
+
+            // Buttons
+            Panel btnGrp = new Panel { Dock = DockStyle.Fill };
+            Button loginBtn = new Button { Text = "SIGN IN", Width = 180, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(loginBtn);
+            loginBtn.Click += LoginButton_Click;
+            
+            Button regBtn = new Button { Text = "CREATE ACCOUNT", Width = 180, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(regBtn, false);
+            regBtn.Click += RegisterButton_Click;
+
+            btnGrp.Controls.Add(loginBtn);
+            btnGrp.Controls.Add(regBtn);
+            loginLayout.Controls.Add(btnGrp, 0, 6);
 
             this.ResumeLayout(false);
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
         {
-            TextBox emailTextBox = (TextBox)this.Controls["emailTextBox"];
-            TextBox passwordTextBox = (TextBox)this.Controls["passwordTextBox"];
-
             string email = emailTextBox.Text.Trim();
             string password = passwordTextBox.Text;
 

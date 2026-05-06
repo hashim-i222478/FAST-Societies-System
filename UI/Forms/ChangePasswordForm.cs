@@ -27,114 +27,63 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "Change Password";
-            this.Size = new System.Drawing.Size(400, 350);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.Text = "Change Password - FAST Societies";
+            this.Size = new System.Drawing.Size(450, 500);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Title
+            Panel mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(40) };
+            this.Controls.Add(mainPanel);
+
             Label titleLabel = new Label
             {
-                Text = "Change Your Password",
-                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(20, 20),
-                Size = new System.Drawing.Size(350, 30)
+                Text = "Security Settings",
+                Font = ThemeManager.HeaderFont,
+                ForeColor = ThemeManager.Accent,
+                Dock = DockStyle.Top,
+                Height = 60
             };
-            this.Controls.Add(titleLabel);
+            mainPanel.Controls.Add(titleLabel);
 
-            int yPos = 70;
+            // Container for fields
+            Panel fieldsPanel = new Panel { Dock = DockStyle.Top, Height = 280, Padding = new Padding(0, 20, 0, 0) };
+            mainPanel.Controls.Add(fieldsPanel);
 
-            // Current Password Label
-            Label currentLabel = new Label
+            // Fields (reversed order for DockStyle.Top)
+            string[] labels = { "CONFIRM PASSWORD", "NEW PASSWORD", "CURRENT PASSWORD" };
+            TextBox[] tbs = new TextBox[3];
+
+            for (int i = 0; i < labels.Length; i++)
             {
-                Text = "Current Password:",
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(350, 20)
-            };
-            this.Controls.Add(currentLabel);
-            yPos += 30;
+                Panel group = new Panel { Dock = DockStyle.Top, Height = 80 };
+                TextBox tb = new TextBox { Dock = DockStyle.Bottom, Height = 35, UseSystemPasswordChar = true };
+                ThemeManager.StyleTextBox(tb);
+                Label lbl = new Label { Text = labels[i], Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Top, Height = 25 };
+                
+                group.Controls.Add(tb);
+                group.Controls.Add(lbl);
+                fieldsPanel.Controls.Add(group);
+                tbs[i] = tb;
+            }
 
-            // Current Password TextBox
-            _currentPasswordTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(350, 30),
-                UseSystemPasswordChar = true,
-                Font = new System.Drawing.Font("Segoe UI", 10)
-            };
-            this.Controls.Add(_currentPasswordTextBox);
-            yPos += 40;
+            _confirmPasswordTextBox = tbs[0];
+            _newPasswordTextBox = tbs[1];
+            _currentPasswordTextBox = tbs[2];
 
-            // New Password Label
-            Label newLabel = new Label
-            {
-                Text = "New Password:",
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(350, 20)
-            };
-            this.Controls.Add(newLabel);
-            yPos += 30;
+            // Buttons
+            Panel btnPanel = new Panel { Dock = DockStyle.Bottom, Height = 60 };
+            mainPanel.Controls.Add(btnPanel);
 
-            // New Password TextBox
-            _newPasswordTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(350, 30),
-                UseSystemPasswordChar = true,
-                Font = new System.Drawing.Font("Segoe UI", 10)
-            };
-            this.Controls.Add(_newPasswordTextBox);
-            yPos += 40;
-
-            // Confirm Password Label
-            Label confirmLabel = new Label
-            {
-                Text = "Confirm Password:",
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(350, 20)
-            };
-            this.Controls.Add(confirmLabel);
-            yPos += 30;
-
-            // Confirm Password TextBox
-            _confirmPasswordTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(350, 30),
-                UseSystemPasswordChar = true,
-                Font = new System.Drawing.Font("Segoe UI", 10)
-            };
-            this.Controls.Add(_confirmPasswordTextBox);
-            yPos += 50;
-
-            // Change Button
-            Button changeButton = new Button
-            {
-                Text = "Change Password",
-                Location = new System.Drawing.Point(100, yPos),
-                Size = new System.Drawing.Size(120, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button changeButton = new Button { Text = "UPDATE", Width = 150, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(changeButton);
             changeButton.Click += ChangeButton_Click;
-            this.Controls.Add(changeButton);
+            btnPanel.Controls.Add(changeButton);
 
-            // Cancel Button
-            Button cancelButton = new Button
-            {
-                Text = "Cancel",
-                Location = new System.Drawing.Point(230, yPos),
-                Size = new System.Drawing.Size(120, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button cancelButton = new Button { Text = "CANCEL", Width = 120, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(cancelButton, false);
             cancelButton.Click += (s, e) => this.Close();
-            this.Controls.Add(cancelButton);
+            btnPanel.Controls.Add(cancelButton);
 
             this.ResumeLayout(false);
         }

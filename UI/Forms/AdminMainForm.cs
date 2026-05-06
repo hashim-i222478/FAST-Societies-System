@@ -27,132 +27,169 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "FAST Societies - Administrator";
-            this.Size = new System.Drawing.Size(1000, 700);
-            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.Text = "Admin Control - FAST Societies";
+            this.Size = new System.Drawing.Size(1200, 800);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Menu Strip
-            MenuStrip menuStrip = new MenuStrip();
-
-            // File Menu
-            ToolStripMenuItem fileMenu = new ToolStripMenuItem("&File");
-            fileMenu.DropDownItems.Add("&Logout", null, (s, e) => Logout());
-            fileMenu.DropDownItems.Add("E&xit", null, (s, e) => Application.Exit());
-            menuStrip.Items.Add(fileMenu);
-
-            // Users Menu
-            ToolStripMenuItem usersMenu = new ToolStripMenuItem("&Users");
-            usersMenu.DropDownItems.Add("&User Management", null, (s, e) => OpenUserManagement());
-            usersMenu.DropDownItems.Add("&View Statistics", null, (s, e) => OpenUserStatistics());
-            menuStrip.Items.Add(usersMenu);
-
-            // Approvals Menu
-            ToolStripMenuItem approvalsMenu = new ToolStripMenuItem("&Approvals");
-            approvalsMenu.DropDownItems.Add("&Society Approvals", null, (s, e) => OpenSocietyApprovals());
-            approvalsMenu.DropDownItems.Add("&Event Approvals", null, (s, e) => OpenEventApprovals());
-            menuStrip.Items.Add(approvalsMenu);
-
-            // Monitoring Menu
-            ToolStripMenuItem monitoringMenu = new ToolStripMenuItem("&Monitoring");
-            monitoringMenu.DropDownItems.Add("&Activity Log", null, (s, e) => OpenActivityLog());
-            monitoringMenu.DropDownItems.Add("&System Status", null, (s, e) => OpenSystemStatus());
-            menuStrip.Items.Add(monitoringMenu);
-
-            // Reports Menu
-            ToolStripMenuItem reportsMenu = new ToolStripMenuItem("&Reports");
-            reportsMenu.DropDownItems.Add("&University Report", null, (s, e) => OpenUniversityReport());
-            reportsMenu.DropDownItems.Add("&Membership Report", null, (s, e) => OpenMembershipReport());
-            reportsMenu.DropDownItems.Add("&Activity Report", null, (s, e) => OpenActivityReport());
-            menuStrip.Items.Add(reportsMenu);
-
-            // Account Menu
-            ToolStripMenuItem accountMenu = new ToolStripMenuItem("&Account");
-            accountMenu.DropDownItems.Add("&Change Password", null, (s, e) => OpenChangePassword());
-            accountMenu.DropDownItems.Add("&Profile", null, (s, e) => OpenProfile());
-            menuStrip.Items.Add(accountMenu);
-
-            this.MainMenuStrip = menuStrip;
-            this.Controls.Add(menuStrip);
-
-            // Welcome Panel
-            Panel welcomePanel = new Panel
+            // --- Main Container ---
+            TableLayoutPanel mainGrid = new TableLayoutPanel
             {
-                Location = new System.Drawing.Point(20, 40),
-                Size = new System.Drawing.Size(950, 120),
-                BackColor = System.Drawing.Color.LightCyan,
-                BorderStyle = BorderStyle.FixedSingle
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1
             };
+            mainGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260));
+            mainGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            this.Controls.Add(mainGrid);
 
-            Label welcomeLabel = new Label
+            // --- Sidebar ---
+            Panel sidebar = new Panel { Dock = DockStyle.Fill, BackColor = ThemeManager.Surface };
+            mainGrid.Controls.Add(sidebar, 0, 0);
+
+            TableLayoutPanel sidebarLayout = new TableLayoutPanel
             {
-                Text = $"Welcome, {_adminName}!",
-                Font = new System.Drawing.Font("Segoe UI", 16, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(20, 20),
-                Size = new System.Drawing.Size(500, 35)
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 8,
+                Padding = new Padding(0, 20, 0, 20)
             };
-            welcomePanel.Controls.Add(welcomeLabel);
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100)); // Title
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Overview
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Users
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Approvals
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Logs
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Reports
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Spacer
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Logout
+            sidebar.Controls.Add(sidebarLayout);
 
-            Label descLabel = new Label
+            Label sidebarTitle = new Label { Text = "ADMIN\nPORTAL", Font = new Font("Trebuchet MS", 18, FontStyle.Bold), ForeColor = ThemeManager.Accent, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter };
+            sidebarLayout.Controls.Add(sidebarTitle, 0, 0);
+
+            AddSidebarButton(sidebarLayout, "Overview", (s, e) => { }, 1);
+            AddSidebarButton(sidebarLayout, "User Management", (s, e) => OpenUserManagement(), 2);
+            AddSidebarButton(sidebarLayout, "Societies", (s, e) => OpenSocietyManagement(), 3);
+            AddSidebarButton(sidebarLayout, "System Logs", (s, e) => OpenActivityLog(), 4);
+            AddSidebarButton(sidebarLayout, "Reports", (s, e) => OpenUniversityReport(), 5);
+
+            Button logoutBtn = new Button { Text = "Logout", Dock = DockStyle.Fill };
+            ThemeManager.StyleSidebarButton(logoutBtn);
+            logoutBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            logoutBtn.Click += (s, e) => Logout();
+            sidebarLayout.Controls.Add(logoutBtn, 0, 7);
+
+            // --- Window Controls ---
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
             {
-                Text = "Manage users, approve activities, and monitor the entire system.",
-                Font = new System.Drawing.Font("Segoe UI", 11),
-                Location = new System.Drawing.Point(20, 60),
-                Size = new System.Drawing.Size(500, 40)
+                Size = new Size(150, 40),
+                Location = new Point(1050, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
             };
-            welcomePanel.Controls.Add(descLabel);
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
 
-            this.Controls.Add(welcomePanel);
+            AddWindowButton(windowControls, "×", (s, e) => Application.Exit(), Color.FromArgb(233, 69, 96));
+            AddWindowButton(windowControls, "□", (s, e) => this.WindowState = this.WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized, ThemeManager.TextSecondary);
+            AddWindowButton(windowControls, "—", (s, e) => this.WindowState = FormWindowState.Minimized, ThemeManager.TextSecondary);
 
-            // Quick Action Buttons
-            int xPos = 40;
-            int yPos = 180;
-            int buttonWidth = 200;
-            int buttonHeight = 80;
-
-            CreateQuickButton("User Management", System.Drawing.Color.SteelBlue, xPos, yPos, buttonWidth, buttonHeight,
-                () => OpenUserManagement());
-            xPos += buttonWidth + 20;
-
-            CreateQuickButton("Pending Approvals", System.Drawing.Color.Orange, xPos, yPos, buttonWidth, buttonHeight,
-                () => OpenSocietyApprovals());
-            xPos += buttonWidth + 20;
-
-            CreateQuickButton("Monitoring", System.Drawing.Color.Red, xPos, yPos, buttonWidth, buttonHeight,
-                () => OpenActivityLog());
-            xPos += buttonWidth + 20;
-
-            CreateQuickButton("Reports", System.Drawing.Color.Green, xPos, yPos, buttonWidth, buttonHeight,
-                () => OpenUniversityReport());
-
-            // Status Bar
-            StatusStrip statusStrip = new StatusStrip();
-            ToolStripStatusLabel statusLabel = new ToolStripStatusLabel
+            // --- Content Container (Table) ---
+            TableLayoutPanel contentLayout = new TableLayoutPanel
             {
-                Text = $"User: {_adminName} | Role: Administrator"
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(50, 60, 50, 40)
             };
-            statusStrip.Items.Add(statusLabel);
-            this.Controls.Add(statusStrip);
+            contentLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100)); // Header
+            contentLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));  // Spacer
+            contentLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Grid
+            mainGrid.Controls.Add(contentLayout, 1, 0);
+
+            Panel header = new Panel { Dock = DockStyle.Fill };
+            contentLayout.Controls.Add(header, 0, 0);
+
+            Label welcome = new Label { Text = $"System Overview: {_adminName}", Font = ThemeManager.TitleFont, ForeColor = ThemeManager.TextPrimary, AutoSize = true, Location = new Point(0, 0) };
+            header.Controls.Add(welcome);
+
+            FlowLayoutPanel grid = new FlowLayoutPanel { Dock = DockStyle.Fill, Margin = new Padding(0), AutoScroll = true };
+            contentLayout.Controls.Add(grid, 0, 2);
+
+            AddDashboardCard(grid, "User Management", "Control access and permissions.", Color.FromArgb(0, 212, 255), (s, e) => OpenUserManagement());
+            AddDashboardCard(grid, "Societies", "Create, approve, or suspend societies.", Color.FromArgb(233, 69, 96), (s, e) => OpenSocietyManagement());
+            AddDashboardCard(grid, "Event Approvals", "Review and approve pending events.", Color.FromArgb(0, 255, 159), (s, e) => OpenEventApprovals());
+            AddDashboardCard(grid, "Monitoring", "System health and activity logs.", Color.FromArgb(106, 76, 239), (s, e) => OpenActivityLog());
+            AddDashboardCard(grid, "Reports", "Generate university-wide stats.", Color.FromArgb(255, 171, 64), (s, e) => OpenUniversityReport());
 
             this.ResumeLayout(false);
-            this.PerformLayout();
         }
 
-        private void CreateQuickButton(string text, System.Drawing.Color color, int x, int y, int width, int height, Action action)
+        private void AddWindowButton(FlowLayoutPanel container, string text, EventHandler onClick, Color hoverColor)
         {
-            Button button = new Button
+            Button btn = new Button
             {
                 Text = text,
-                Location = new System.Drawing.Point(x, y),
-                Size = new System.Drawing.Size(width, height),
-                Font = new System.Drawing.Font("Segoe UI", 11, System.Drawing.FontStyle.Bold),
-                BackColor = color,
-                ForeColor = System.Drawing.Color.White,
-                Cursor = System.Windows.Forms.Cursors.Hand
+                Size = new Size(40, 40),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = ThemeManager.TextSecondary,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Margin = new Padding(0)
             };
-            button.Click += (s, e) => action?.Invoke();
-            this.Controls.Add(button);
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Click += onClick;
+            btn.MouseEnter += (s, e) => btn.ForeColor = hoverColor;
+            btn.MouseLeave += (s, e) => btn.ForeColor = ThemeManager.TextSecondary;
+            container.Controls.Add(btn);
+        }
+
+        private void AddSidebarButton(TableLayoutPanel layout, string text, EventHandler onClick, int row)
+        {
+            Button btn = new Button { Text = text, Dock = DockStyle.Fill };
+            ThemeManager.StyleSidebarButton(btn);
+            btn.Font = new Font("Trebuchet MS", 11, FontStyle.Bold);
+            btn.Click += onClick;
+            layout.Controls.Add(btn, 0, row);
+        }
+
+        private void AddDashboardCard(FlowLayoutPanel grid, string title, string desc, Color accent, EventHandler onClick)
+        {
+            Panel card = new Panel
+            {
+                Size = new Size(250, 180),
+                Margin = new Padding(0, 0, 30, 30),
+                Cursor = Cursors.Hand
+            };
+            ModernControls.ApplyCardStyle(card);
+            card.Click += onClick;
+
+            Label titleLbl = new Label
+            {
+                Text = title,
+                Font = ThemeManager.HeaderFont,
+                ForeColor = accent,
+                Location = new Point(20, 20),
+                Size = new Size(210, 30)
+            };
+            titleLbl.Click += onClick;
+            card.Controls.Add(titleLbl);
+
+            Label descLbl = new Label
+            {
+                Text = desc,
+                Font = ThemeManager.SmallFont,
+                ForeColor = ThemeManager.TextSecondary,
+                Location = new Point(20, 60),
+                Size = new Size(210, 80)
+            };
+            descLbl.Click += onClick;
+            card.Controls.Add(descLbl);
+
+            grid.Controls.Add(card);
         }
 
         private void OpenUserManagement()
@@ -164,6 +201,12 @@ namespace FASTSocietiesSystem.UI.Forms
         private void OpenUserStatistics()
         {
             UIHelpers.ShowInfo("User Statistics - View user demographics and activity");
+        }
+
+        private void OpenSocietyManagement()
+        {
+            AdminSocietyManagementForm form = new AdminSocietyManagementForm();
+            form.ShowDialog();
         }
 
         private void OpenSocietyApprovals()
@@ -180,7 +223,8 @@ namespace FASTSocietiesSystem.UI.Forms
 
         private void OpenActivityLog()
         {
-            UIHelpers.ShowInfo("Activity Log - View recent system activities and transactions");
+            SystemLogsForm form = new SystemLogsForm();
+            form.ShowDialog();
         }
 
         private void OpenSystemStatus()

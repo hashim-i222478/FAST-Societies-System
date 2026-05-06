@@ -25,110 +25,116 @@ namespace FASTSocietiesSystem.UI.Forms
             LoadApprovals();
         }
 
+        private Label _emptyLabel;
+
         private void InitializeComponent()
         {
             this.SuspendLayout();
 
-            this.Text = "Event Approvals";
-            this.Size = new System.Drawing.Size(900, 500);
-            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.Text = "Event Approvals - FAST Societies";
+            this.Size = new System.Drawing.Size(1000, 700);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Title
+            // --- Main Container ---
+            TableLayoutPanel mainGrid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(40)
+            };
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Header
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Content
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Footer
+            this.Controls.Add(mainGrid);
+
+            // --- Window Controls ---
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
+            {
+                Size = new Size(100, 40),
+                Location = new Point(900, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
+            };
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
+
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => this.Close();
+            closeBtn.MouseEnter += (s, e) => closeBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            closeBtn.MouseLeave += (s, e) => closeBtn.ForeColor = ThemeManager.TextSecondary;
+            windowControls.Controls.Add(closeBtn);
+
+            Button minBtn = new Button { Text = "—", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 12, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            minBtn.FlatAppearance.BorderSize = 0;
+            minBtn.Click += (s, e) => this.WindowState = FormWindowState.Minimized;
+            windowControls.Controls.Add(minBtn);
+
+            // Header
             Label titleLabel = new Label
             {
                 Text = "Pending Event Approvals",
-                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(20, 20),
-                Size = new System.Drawing.Size(300, 30)
+                Font = ThemeManager.TitleFont,
+                ForeColor = ThemeManager.TextPrimary,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.BottomLeft
             };
-            this.Controls.Add(titleLabel);
+            mainGrid.Controls.Add(titleLabel, 0, 0);
 
-            // Grid
-            _approvalsGrid = new DataGridView
+            // Content Area
+            Panel contentPanel = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(contentPanel, 0, 1);
+
+            _approvalsGrid = new DataGridView { Dock = DockStyle.Fill, Visible = false };
+            ThemeManager.StyleGrid(_approvalsGrid);
+            _approvalsGrid.Columns.Add("EventTitle", "EVENT TITLE");
+            _approvalsGrid.Columns.Add("EventDate", "EVENT DATE");
+            _approvalsGrid.Columns.Add("Location", "LOCATION");
+            _approvalsGrid.Columns.Add("Capacity", "CAPACITY");
+            _approvalsGrid.Columns.Add("EventId", "ID");
+            _approvalsGrid.Columns["EventId"].Visible = false;
+            contentPanel.Controls.Add(_approvalsGrid);
+
+            _emptyLabel = new Label
             {
-                Location = new System.Drawing.Point(20, 60),
-                Size = new System.Drawing.Size(850, 350),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                Text = "No pending event requests found.\nEvents will appear here for approval.",
+                Font = ThemeManager.HeaderFont,
+                ForeColor = ThemeManager.TextSecondary,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Dock = DockStyle.Fill,
+                Visible = false
             };
+            contentPanel.Controls.Add(_emptyLabel);
 
-            _approvalsGrid.Columns.Add("EventTitle", "Event Title");
-            _approvalsGrid.Columns.Add("EventDate", "Event Date");
-            _approvalsGrid.Columns.Add("Location", "Location");
-            _approvalsGrid.Columns.Add("Capacity", "Capacity");
-            _approvalsGrid.Columns.Add("EventId", "EventId");
+            // Footer
+            Panel footer = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(footer, 0, 2);
 
-            this.Controls.Add(_approvalsGrid);
-
-            // Approve Button
-            Button approveButton = new Button
-            {
-                Text = "Approve",
-                Location = new System.Drawing.Point(20, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button approveButton = new Button { Text = "APPROVE", Width = 150, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(approveButton);
             approveButton.Click += ApproveButton_Click;
-            this.Controls.Add(approveButton);
+            footer.Controls.Add(approveButton);
 
-            // Reject Button
-            Button rejectButton = new Button
-            {
-                Text = "Reject",
-                Location = new System.Drawing.Point(180, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Red,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button rejectButton = new Button { Text = "REJECT", Width = 150, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(rejectButton, false);
+            rejectButton.ForeColor = Color.FromArgb(233, 69, 96);
             rejectButton.Click += RejectButton_Click;
-            this.Controls.Add(rejectButton);
+            footer.Controls.Add(rejectButton);
 
-            // View Details Button
-            Button viewButton = new Button
-            {
-                Text = "View Details",
-                Location = new System.Drawing.Point(340, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Blue,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button viewButton = new Button { Text = "VIEW DETAILS", Width = 150, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(viewButton, false);
             viewButton.Click += ViewButton_Click;
-            this.Controls.Add(viewButton);
+            footer.Controls.Add(viewButton);
 
-            // Refresh Button
-            Button refreshButton = new Button
-            {
-                Text = "Refresh",
-                Location = new System.Drawing.Point(500, 420),
-                Size = new System.Drawing.Size(150, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.CornflowerBlue,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button refreshButton = new Button { Text = "REFRESH", Width = 120, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(refreshButton, false);
             refreshButton.Click += (s, e) => LoadApprovals();
-            this.Controls.Add(refreshButton);
-
-            // Close Button
-            Button closeButton = new Button
-            {
-                Text = "Close",
-                Location = new System.Drawing.Point(690, 420),
-                Size = new System.Drawing.Size(180, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White
-            };
-            closeButton.Click += (s, e) => this.Close();
-            this.Controls.Add(closeButton);
+            footer.Controls.Add(refreshButton);
 
             this.ResumeLayout(false);
         }
@@ -138,34 +144,35 @@ namespace FASTSocietiesSystem.UI.Forms
             try
             {
                 _approvalsGrid.Rows.Clear();
-                List<ApprovalRequest> approvals = _approvalService.GetAllPendingApprovals();
+                List<Event> pendingEvents = _eventRepository.GetPendingEvents();
+                bool hasEvents = false;
 
-                foreach (var approval in approvals)
+                foreach (var evt in pendingEvents)
                 {
-                    if (approval.RequestType == "Event")
-                    {
-                        Event evt = _eventRepository.GetEventById(approval.TargetId);
-                        if (evt != null)
-                        {
-                            _approvalsGrid.Rows.Add(
-                                evt.EventTitle,
-                                UIHelpers.FormatDate(evt.EventDate),
-                                evt.Location,
-                                evt.Capacity,
-                                evt.EventId
-                            );
-                        }
-                    }
+                    hasEvents = true;
+                    _approvalsGrid.Rows.Add(
+                        evt.EventTitle,
+                        UIHelpers.FormatDate(evt.EventDate),
+                        evt.Location,
+                        evt.Capacity,
+                        evt.EventId
+                    );
                 }
 
-                if (_approvalsGrid.Rows.Count == 0)
+                if (!hasEvents)
                 {
-                    UIHelpers.ShowInfo("No pending event approvals");
+                    _approvalsGrid.Visible = false;
+                    _emptyLabel.Visible = true;
+                }
+                else
+                {
+                    _approvalsGrid.Visible = true;
+                    _emptyLabel.Visible = false;
                 }
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to load approvals: {ex.Message}");
+                UIHelpers.ShowError($"Failed to load event approvals: {ex.Message}");
             }
         }
 
@@ -173,7 +180,7 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             if (_approvalsGrid.SelectedRows.Count == 0)
             {
-                UIHelpers.ShowError("Please select an event");
+                UIHelpers.ShowError("Please select an event to approve.");
                 return;
             }
 
@@ -182,16 +189,16 @@ namespace FASTSocietiesSystem.UI.Forms
                 string eventTitle = (string)_approvalsGrid.SelectedRows[0].Cells[0].Value;
                 int eventId = (int)_approvalsGrid.SelectedRows[0].Cells[4].Value;
 
-                if (UIHelpers.ShowConfirm($"Approve event '{eventTitle}'?"))
+                if (UIHelpers.ShowConfirm($"Approve event '{eventTitle}'?", "Confirm Approval"))
                 {
                     _eventRepository.ApproveEvent(eventId);
-                    UIHelpers.ShowInfo("Event approved successfully");
+                    UIHelpers.ShowInfo($"Event '{eventTitle}' has been approved.");
                     LoadApprovals();
                 }
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to approve: {ex.Message}");
+                UIHelpers.ShowError($"Failed to approve event: {ex.Message}");
             }
         }
 
@@ -199,7 +206,7 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             if (_approvalsGrid.SelectedRows.Count == 0)
             {
-                UIHelpers.ShowError("Please select an event");
+                UIHelpers.ShowError("Please select an event to reject.");
                 return;
             }
 
@@ -208,16 +215,16 @@ namespace FASTSocietiesSystem.UI.Forms
                 string eventTitle = (string)_approvalsGrid.SelectedRows[0].Cells[0].Value;
                 int eventId = (int)_approvalsGrid.SelectedRows[0].Cells[4].Value;
 
-                if (UIHelpers.ShowConfirm($"Reject event '{eventTitle}'?"))
+                if (UIHelpers.ShowConfirm($"Are you sure you want to reject '{eventTitle}'?", "Confirm Rejection"))
                 {
                     _eventRepository.CancelEvent(eventId);
-                    UIHelpers.ShowInfo("Event rejected");
+                    UIHelpers.ShowInfo($"Event '{eventTitle}' was rejected.");
                     LoadApprovals();
                 }
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to reject: {ex.Message}");
+                UIHelpers.ShowError($"Failed to reject event: {ex.Message}");
             }
         }
 
@@ -225,7 +232,7 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             if (_approvalsGrid.SelectedRows.Count == 0)
             {
-                UIHelpers.ShowError("Please select an event");
+                UIHelpers.ShowError("Please select an event to view details.");
                 return;
             }
 
@@ -236,17 +243,17 @@ namespace FASTSocietiesSystem.UI.Forms
                 string location = (string)_approvalsGrid.SelectedRows[0].Cells[2].Value;
                 int capacity = (int)_approvalsGrid.SelectedRows[0].Cells[3].Value;
 
-                string details = $"Event Details\n\n" +
-                               $"Title: {eventTitle}\n" +
-                               $"Date: {eventDate}\n" +
-                               $"Location: {location}\n" +
-                               $"Capacity: {capacity}";
+                string details = $"EVENT REQUEST DETAILS\n\n" +
+                               $"TITLE: {eventTitle}\n" +
+                               $"DATE: {eventDate}\n" +
+                               $"LOCATION: {location}\n" +
+                               $"CAPACITY: {capacity} Students";
 
-                UIHelpers.ShowInfo(details);
+                UIHelpers.ShowInfo(details, "Application Details");
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to view details: {ex.Message}");
+                UIHelpers.ShowError($"Failed to view event details: {ex.Message}");
             }
         }
     }

@@ -24,70 +24,103 @@ namespace FASTSocietiesSystem.UI.Forms
             LoadSocieties();
         }
 
+        private Label _emptyLabel;
+
         private void InitializeComponent()
         {
             this.SuspendLayout();
 
-            this.Text = "Browse Societies";
-            this.Size = new System.Drawing.Size(800, 500);
-            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.Text = "Browse Societies - FAST Societies";
+            this.Size = new System.Drawing.Size(1000, 700);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Title
+            // --- Main Container ---
+            TableLayoutPanel mainGrid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(40)
+            };
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Header
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Content
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Footer
+            this.Controls.Add(mainGrid);
+
+            // --- Window Controls ---
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
+            {
+                Size = new Size(100, 40),
+                Location = new Point(900, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
+            };
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
+
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => this.Close();
+            closeBtn.MouseEnter += (s, e) => closeBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            closeBtn.MouseLeave += (s, e) => closeBtn.ForeColor = ThemeManager.TextSecondary;
+            windowControls.Controls.Add(closeBtn);
+
+            Button minBtn = new Button { Text = "—", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 12, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            minBtn.FlatAppearance.BorderSize = 0;
+            minBtn.Click += (s, e) => this.WindowState = FormWindowState.Minimized;
+            windowControls.Controls.Add(minBtn);
+
+            // Header
             Label titleLabel = new Label
             {
                 Text = "Available Societies",
-                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(20, 20),
-                Size = new System.Drawing.Size(300, 30)
+                Font = ThemeManager.TitleFont,
+                ForeColor = ThemeManager.TextPrimary,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.BottomLeft
             };
-            this.Controls.Add(titleLabel);
+            mainGrid.Controls.Add(titleLabel, 0, 0);
 
-            // Grid
-            _societiesGrid = new DataGridView
-            {
-                Location = new System.Drawing.Point(20, 60),
-                Size = new System.Drawing.Size(750, 350),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            };
+            // Content Area (Grid + Empty State)
+            Panel contentPanel = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(contentPanel, 0, 1);
 
+            _societiesGrid = new DataGridView { Dock = DockStyle.Fill, Visible = false };
+            ThemeManager.StyleGrid(_societiesGrid);
             _societiesGrid.Columns.Add("SocietyId", "ID");
-            _societiesGrid.Columns.Add("SocietyName", "Society Name");
-            _societiesGrid.Columns.Add("Description", "Description");
-            _societiesGrid.Columns.Add("MemberCount", "Members");
+            _societiesGrid.Columns.Add("SocietyName", "SOCIETY NAME");
+            _societiesGrid.Columns.Add("Description", "DESCRIPTION");
+            _societiesGrid.Columns.Add("MemberCount", "MEMBERS");
+            contentPanel.Controls.Add(_societiesGrid);
 
-            this.Controls.Add(_societiesGrid);
-
-            // Apply Button
-            Button applyButton = new Button
+            _emptyLabel = new Label
             {
-                Text = "Apply for Membership",
-                Location = new System.Drawing.Point(20, 420),
-                Size = new System.Drawing.Size(200, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White
+                Text = "No societies are currently available to join.\nCheck back later!",
+                Font = ThemeManager.HeaderFont,
+                ForeColor = ThemeManager.TextSecondary,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Dock = DockStyle.Fill,
+                Visible = false
             };
+            contentPanel.Controls.Add(_emptyLabel);
+
+            // Footer
+            Panel footer = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(footer, 0, 2);
+
+            Button applyButton = new Button { Text = "APPLY FOR MEMBERSHIP", Width = 250, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(applyButton);
             applyButton.Click += ApplyButton_Click;
-            this.Controls.Add(applyButton);
+            footer.Controls.Add(applyButton);
 
-            // Close Button
-            Button closeButton = new Button
-            {
-                Text = "Close",
-                Location = new System.Drawing.Point(570, 420),
-                Size = new System.Drawing.Size(200, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button closeButton = new Button { Text = "BACK TO DASHBOARD", Width = 200, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(closeButton, false);
             closeButton.Click += (s, e) => this.Close();
-            this.Controls.Add(closeButton);
+            footer.Controls.Add(closeButton);
 
             this.ResumeLayout(false);
         }
@@ -99,10 +132,21 @@ namespace FASTSocietiesSystem.UI.Forms
                 _societiesGrid.Rows.Clear();
                 List<Society> societies = _studentService.BrowseSocieties();
 
-                foreach (var society in societies)
+                if (societies == null || societies.Count == 0)
                 {
-                    int memberCount = new SocietyService().GetMemberCount(society.SocietyId);
-                    _societiesGrid.Rows.Add(society.SocietyId, society.SocietyName, society.Description, memberCount);
+                    _societiesGrid.Visible = false;
+                    _emptyLabel.Visible = true;
+                }
+                else
+                {
+                    _societiesGrid.Visible = true;
+                    _emptyLabel.Visible = false;
+
+                    foreach (var society in societies)
+                    {
+                        int memberCount = new SocietyService().GetMemberCount(society.SocietyId);
+                        _societiesGrid.Rows.Add(society.SocietyId, society.SocietyName, society.Description, memberCount);
+                    }
                 }
             }
             catch (Exception ex)
@@ -115,7 +159,7 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             if (_societiesGrid.SelectedRows.Count == 0)
             {
-                UIHelpers.ShowError("Please select a society");
+                UIHelpers.ShowError("Please select a society from the list first.");
                 return;
             }
 
@@ -124,20 +168,20 @@ namespace FASTSocietiesSystem.UI.Forms
                 int societyId = (int)_societiesGrid.SelectedRows[0].Cells[0].Value;
                 string societyName = (string)_societiesGrid.SelectedRows[0].Cells[1].Value;
 
-                if (UIHelpers.ShowConfirm($"Apply for membership in {societyName}?"))
+                if (UIHelpers.ShowConfirm($"Would you like to apply for membership in '{societyName}'?"))
                 {
                     _studentService.ApplyForMembership(_studentId, societyId);
-                    UIHelpers.ShowInfo("Membership application submitted successfully!");
+                    UIHelpers.ShowInfo("Your membership application has been submitted successfully!");
                     LoadSocieties();
                 }
             }
             catch (DuplicateResourceException)
             {
-                UIHelpers.ShowError("You are already a member of this society");
+                UIHelpers.ShowError("You have already submitted an application or are already a member of this society.");
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to apply: {ex.Message}");
+                UIHelpers.ShowError($"Failed to process application: {ex.Message}");
             }
         }
     }

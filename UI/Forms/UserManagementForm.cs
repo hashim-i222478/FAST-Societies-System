@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.DAL;
@@ -8,9 +9,6 @@ using FASTSocietiesSystem.UI.Helpers;
 
 namespace FASTSocietiesSystem.UI.Forms
 {
-    /// <summary>
-    /// Form for admin to manage users
-    /// </summary>
     public partial class UserManagementForm : Form
     {
         private AuthenticationService _authService;
@@ -30,65 +28,96 @@ namespace FASTSocietiesSystem.UI.Forms
             this.SuspendLayout();
 
             this.Text = "User Management - FAST Societies";
-            this.Size = new System.Drawing.Size(1100, 700);
+            this.Size = new System.Drawing.Size(1100, 750);
             this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
             this.BackColor = ThemeManager.Background;
 
-            Panel mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(30) };
-            this.Controls.Add(mainPanel);
+            TableLayoutPanel mainGrid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(40)
+            };
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Header
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Content
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Footer
+            this.Controls.Add(mainGrid);
 
+            // Window Controls
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
+            {
+                Size = new Size(100, 40),
+                Location = new Point(1000, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
+
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => this.Close();
+            windowControls.Controls.Add(closeBtn);
+
+            // Header
             Label titleLabel = new Label
             {
-                Text = "User Management",
+                Text = "Platform User Management",
                 Font = ThemeManager.TitleFont,
                 ForeColor = ThemeManager.TextPrimary,
-                Dock = DockStyle.Top,
-                Height = 60
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.BottomLeft
             };
-            mainPanel.Controls.Add(titleLabel);
+            mainGrid.Controls.Add(titleLabel, 0, 0);
 
             // Grid
             _usersGrid = new DataGridView { Dock = DockStyle.Fill };
             ThemeManager.StyleGrid(_usersGrid);
 
             _usersGrid.Columns.Add("UserId", "ID");
-            _usersGrid.Columns.Add("FullName", "Full Name");
-            _usersGrid.Columns.Add("Email", "Email");
-            _usersGrid.Columns.Add("Role", "Role");
-            _usersGrid.Columns.Add("Status", "Status");
-            _usersGrid.Columns.Add("CreatedDate", "Created");
+            _usersGrid.Columns.Add("FullName", "FULL NAME");
+            _usersGrid.Columns.Add("Email", "EMAIL");
+            _usersGrid.Columns.Add("Role", "ROLE");
+            _usersGrid.Columns.Add("Status", "STATUS");
+            _usersGrid.Columns.Add("CreatedDate", "CREATED");
+            _usersGrid.Columns["UserId"].Visible = false;
 
-            mainPanel.Controls.Add(_usersGrid);
+            mainGrid.Controls.Add(_usersGrid, 0, 1);
 
-            // Bottom Actions
-            Panel actionPanel = new Panel { Dock = DockStyle.Bottom, Height = 80, Padding = new Padding(0, 20, 0, 0) };
-            mainPanel.Controls.Add(actionPanel);
+            // Footer
+            Panel footer = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(footer, 0, 2);
 
-            Button createButton = new Button { Text = "CREATE", Width = 150, Dock = DockStyle.Left };
-            ThemeManager.StyleButton(createButton);
+            Button createButton = new Button { Text = "CREATE NEW USER", Width = 180, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(createButton, false);
+            createButton.ForeColor = Color.FromArgb(0, 212, 255);
             createButton.Click += CreateButton_Click;
-            actionPanel.Controls.Add(createButton);
+            footer.Controls.Add(createButton);
 
-            Button suspendButton = new Button { Text = "SUSPEND", Width = 130, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
-            ThemeManager.StyleButton(suspendButton, false);
-            suspendButton.Click += SuspendButton_Click;
-            actionPanel.Controls.Add(suspendButton);
-
-            Button activateButton = new Button { Text = "ACTIVATE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
-            ThemeManager.StyleButton(activateButton, true); // Active use cyan
+            Button activateButton = new Button { Text = "ACTIVATE", Width = 120, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(activateButton, false);
+            activateButton.ForeColor = Color.FromArgb(0, 255, 159);
             activateButton.Click += ActivateButton_Click;
-            actionPanel.Controls.Add(activateButton);
+            footer.Controls.Add(activateButton);
 
-            Button viewButton = new Button { Text = "VIEW", Width = 100, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            Button suspendButton = new Button { Text = "SUSPEND", Width = 120, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
+            ThemeManager.StyleButton(suspendButton, false);
+            suspendButton.ForeColor = Color.FromArgb(233, 69, 96);
+            suspendButton.Click += SuspendButton_Click;
+            footer.Controls.Add(suspendButton);
+
+            Button viewButton = new Button { Text = "DETAILS", Width = 120, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
             ThemeManager.StyleButton(viewButton, false);
             viewButton.Click += ViewButton_Click;
-            actionPanel.Controls.Add(viewButton);
+            footer.Controls.Add(viewButton);
 
-            Button closeButton = new Button { Text = "CLOSE", Width = 120, Dock = DockStyle.Right };
-            ThemeManager.StyleButton(closeButton, false);
-            closeButton.Click += (s, e) => this.Close();
-            actionPanel.Controls.Add(closeButton);
+            Button backBtn = new Button { Text = "BACK", Width = 120, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(backBtn, false);
+            backBtn.Click += (s, e) => this.Close();
+            footer.Controls.Add(backBtn);
 
             this.ResumeLayout(false);
         }
@@ -98,7 +127,6 @@ namespace FASTSocietiesSystem.UI.Forms
             try
             {
                 _usersGrid.Rows.Clear();
-                
                 List<User> users = _userRepository.GetAllUsers();
                 
                 foreach (var user in users)
@@ -111,11 +139,6 @@ namespace FASTSocietiesSystem.UI.Forms
                         user.Status,
                         UIHelpers.FormatDate(user.CreatedDate)
                     );
-                }
-
-                if (users.Count == 0)
-                {
-                    UIHelpers.ShowInfo("No users found");
                 }
             }
             catch (Exception ex)
@@ -217,14 +240,14 @@ namespace FASTSocietiesSystem.UI.Forms
                 string status = (string)_usersGrid.SelectedRows[0].Cells[4].Value;
                 string created = (string)_usersGrid.SelectedRows[0].Cells[5].Value;
 
-                string details = $"User Details\n\n" +
-                               $"Name: {name}\n" +
-                               $"Email: {email}\n" +
-                               $"Role: {role}\n" +
-                               $"Status: {status}\n" +
-                               $"Created: {created}";
+                string details = $"USER DETAILS\n\n" +
+                               $"NAME: {name}\n" +
+                               $"EMAIL: {email}\n" +
+                               $"ROLE: {role}\n" +
+                               $"STATUS: {status}\n" +
+                               $"CREATED: {created}";
 
-                UIHelpers.ShowInfo(details);
+                UIHelpers.ShowInfo(details, "User Information");
             }
             catch (Exception ex)
             {

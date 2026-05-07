@@ -11,10 +11,12 @@ namespace FASTSocietiesSystem.BLL
     public class AuthenticationService
     {
         private readonly UserRepository _userRepository;
+        private readonly LogRepository _logRepository;
 
         public AuthenticationService()
         {
             _userRepository = new UserRepository();
+            _logRepository = new LogRepository();
         }
 
         /// <summary>
@@ -38,6 +40,7 @@ namespace FASTSocietiesSystem.BLL
             if (!PasswordHasher.VerifyPassword(password, user.PasswordHash))
                 throw new InvalidCredentialsException("Invalid email or password");
 
+            _logRepository.AddLog(user.UserId, "Login", $"User {user.Email} logged in successfully");
             return user;
         }
 
@@ -73,6 +76,7 @@ namespace FASTSocietiesSystem.BLL
             int userId = _userRepository.CreateUser(student);
             student.UserId = userId;
 
+            _logRepository.AddLog(userId, "Registration", $"New student {email} registered");
             return student;
         }
 

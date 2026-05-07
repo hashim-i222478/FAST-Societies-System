@@ -27,48 +27,103 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "Create New Society";
-            this.Size = new System.Drawing.Size(500, 600);
+            this.Text = "Create Society - FAST Societies";
+            this.Size = new System.Drawing.Size(550, 650);
             this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = ThemeManager.Surface;
+            this.BackColor = ThemeManager.Background;
 
-            TableLayoutPanel layout = new TableLayoutPanel
+            TableLayoutPanel mainGrid = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 8,
+                RowCount = 3,
                 Padding = new Padding(40)
             };
-            this.Controls.Add(layout);
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Header
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Content
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Footer
+            this.Controls.Add(mainGrid);
 
-            Label title = new Label { Text = "NEW SOCIETY", Font = ThemeManager.HeaderFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter };
-            layout.Controls.Add(title, 0, 0);
+            // Window Controls
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
+            {
+                Size = new Size(100, 40),
+                Location = new Point(450, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
 
-            layout.Controls.Add(new Label { Text = "SOCIETY NAME", ForeColor = ThemeManager.TextSecondary, Font = ThemeManager.SmallFont, Dock = DockStyle.Bottom }, 0, 1);
-            _nameTxt = new TextBox { Dock = DockStyle.Top, BackColor = ThemeManager.Background, ForeColor = ThemeManager.TextPrimary, Font = ThemeManager.BodyFont, BorderStyle = BorderStyle.FixedSingle };
-            layout.Controls.Add(_nameTxt, 0, 2);
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => this.Close();
+            windowControls.Controls.Add(closeBtn);
 
-            layout.Controls.Add(new Label { Text = "DESCRIPTION", ForeColor = ThemeManager.TextSecondary, Font = ThemeManager.SmallFont, Dock = DockStyle.Bottom, Margin = new Padding(0, 20, 0, 0) }, 0, 3);
-            _descTxt = new TextBox { Dock = DockStyle.Fill, Multiline = true, Height = 100, BackColor = ThemeManager.Background, ForeColor = ThemeManager.TextPrimary, Font = ThemeManager.BodyFont, BorderStyle = BorderStyle.FixedSingle };
-            layout.Controls.Add(_descTxt, 0, 4);
+            // Header
+            Label titleLabel = new Label
+            {
+                Text = "Register New Society",
+                Font = ThemeManager.TitleFont,
+                ForeColor = ThemeManager.TextPrimary,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.BottomLeft
+            };
+            mainGrid.Controls.Add(titleLabel, 0, 0);
 
-            layout.Controls.Add(new Label { Text = "ASSIGN HEAD", ForeColor = ThemeManager.TextSecondary, Font = ThemeManager.SmallFont, Dock = DockStyle.Bottom, Margin = new Padding(0, 20, 0, 0) }, 0, 5);
-            _headCombo = new ComboBox { Dock = DockStyle.Top, DropDownStyle = ComboBoxStyle.DropDownList, BackColor = ThemeManager.Background, ForeColor = ThemeManager.TextPrimary, Font = ThemeManager.BodyFont, FlatStyle = FlatStyle.Flat };
-            layout.Controls.Add(_headCombo, 0, 6);
+            // Content Panel
+            FlowLayoutPanel contentPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true,
+                Padding = new Padding(0, 20, 0, 0)
+            };
+            mainGrid.Controls.Add(contentPanel, 0, 1);
 
-            FlowLayoutPanel buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, Margin = new Padding(0, 30, 0, 0) };
-            layout.Controls.Add(buttons, 0, 7);
+            // Field Helper
+            void AddField(string labelText, Control inputControl, int height = 35)
+            {
+                Panel group = new Panel { Width = 450, Height = inputControl.Height + 40, Margin = new Padding(0, 0, 0, 20) };
+                Label lbl = new Label { Text = labelText, Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Location = new Point(0, 0), AutoSize = true };
+                inputControl.Location = new Point(0, 25);
+                inputControl.Width = 430;
+                group.Height = inputControl.Height + 35;
+                group.Controls.Add(lbl);
+                group.Controls.Add(inputControl);
+                contentPanel.Controls.Add(group);
+            }
 
-            Button cancelBtn = new Button { Text = "CANCEL", Width = 100 };
-            ThemeManager.StyleButton(cancelBtn, false);
-            cancelBtn.Click += (s, e) => this.DialogResult = DialogResult.Cancel;
-            buttons.Controls.Add(cancelBtn);
+            _nameTxt = new TextBox { Font = ThemeManager.BodyFont };
+            ThemeManager.StyleTextBox(_nameTxt);
+            AddField("SOCIETY NAME", _nameTxt);
 
-            Button saveBtn = new Button { Text = "CREATE", Width = 120 };
-            ThemeManager.StyleButton(saveBtn);
-            saveBtn.Click += SaveBtn_Click;
-            buttons.Controls.Add(saveBtn);
+            _descTxt = new TextBox { Font = ThemeManager.BodyFont, Multiline = true, Height = 100 };
+            ThemeManager.StyleTextBox(_descTxt);
+            AddField("DESCRIPTION", _descTxt);
+
+            _headCombo = new ComboBox { Font = ThemeManager.BodyFont, DropDownStyle = ComboBoxStyle.DropDownList, FlatStyle = FlatStyle.Flat };
+            _headCombo.BackColor = ThemeManager.Surface;
+            _headCombo.ForeColor = ThemeManager.TextPrimary;
+            AddField("ASSIGN SOCIETY HEAD", _headCombo);
+
+            // Footer
+            Panel footer = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(footer, 0, 2);
+
+            Button createButton = new Button { Text = "CREATE SOCIETY", Width = 180, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(createButton, false);
+            createButton.ForeColor = Color.FromArgb(0, 255, 159);
+            createButton.Click += SaveBtn_Click;
+            footer.Controls.Add(createButton);
+
+            Button cancelButton = new Button { Text = "CANCEL", Width = 120, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(cancelButton, false);
+            cancelButton.Click += (s, e) => this.DialogResult = DialogResult.Cancel;
+            footer.Controls.Add(cancelButton);
 
             this.ResumeLayout(false);
         }
@@ -84,6 +139,7 @@ namespace FASTSocietiesSystem.UI.Forms
                 {
                     _headCombo.Items.Add($"{head.FullName} ({head.Email})");
                 }
+                if (_headCombo.Items.Count > 0) _headCombo.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
@@ -93,7 +149,7 @@ namespace FASTSocietiesSystem.UI.Forms
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(_nameTxt.Text))
+            if (string.IsNullOrEmpty(_nameTxt.Text.Trim()))
             {
                 UIHelpers.ShowError("Society Name is required.");
                 return;
@@ -108,9 +164,10 @@ namespace FASTSocietiesSystem.UI.Forms
             try
             {
                 int headId = _heads[_headCombo.SelectedIndex].UserId;
-                _societyService.CreateSociety(_nameTxt.Text, _descTxt.Text, headId, "Active");
+                _societyService.CreateSociety(_nameTxt.Text.Trim(), _descTxt.Text.Trim(), headId, "Active");
                 UIHelpers.ShowInfo("Society created and activated successfully.");
                 this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             catch (Exception ex)
             {

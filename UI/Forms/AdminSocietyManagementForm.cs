@@ -12,6 +12,10 @@ namespace FASTSocietiesSystem.UI.Forms
     {
         private SocietyService _societyService;
         private DataGridView _societiesGrid;
+        private Button _approveBtn;
+        private Button _suspendBtn;
+        private Button _activateBtn;
+        private Button _deleteBtn;
 
         public AdminSocietyManagementForm()
         {
@@ -83,6 +87,7 @@ namespace FASTSocietiesSystem.UI.Forms
             _societiesGrid.Columns.Add("SocietyId", "ID");
             _societiesGrid.Columns["SocietyId"].Visible = false;
 
+            _societiesGrid.SelectionChanged += SocietiesGrid_SelectionChanged;
             mainGrid.Controls.Add(_societiesGrid, 0, 1);
 
             // Footer
@@ -94,27 +99,27 @@ namespace FASTSocietiesSystem.UI.Forms
             createBtn.Click += (s, e) => OpenAddSociety();
             footer.Controls.Add(createBtn);
 
-            Button approveBtn = new Button { Text = "APPROVE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0) };
-            ThemeManager.StyleButton(approveBtn, false);
-            approveBtn.Click += (s, e) => ChangeStatus("Approve");
-            footer.Controls.Add(approveBtn);
+            _approveBtn = new Button { Text = "APPROVE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0), Visible = false };
+            ThemeManager.StyleButton(_approveBtn, false);
+            _approveBtn.Click += (s, e) => ChangeStatus("Approve");
+            footer.Controls.Add(_approveBtn);
 
-            Button suspendBtn = new Button { Text = "SUSPEND", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0) };
-            ThemeManager.StyleButton(suspendBtn, false);
-            suspendBtn.ForeColor = Color.FromArgb(255, 171, 64);
-            suspendBtn.Click += (s, e) => ChangeStatus("Suspend");
-            footer.Controls.Add(suspendBtn);
+            _suspendBtn = new Button { Text = "SUSPEND", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0), Visible = false };
+            ThemeManager.StyleButton(_suspendBtn, false);
+            _suspendBtn.ForeColor = Color.FromArgb(255, 171, 64);
+            _suspendBtn.Click += (s, e) => ChangeStatus("Suspend");
+            footer.Controls.Add(_suspendBtn);
 
-            Button activateBtn = new Button { Text = "ACTIVATE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0) };
-            ThemeManager.StyleButton(activateBtn, false);
-            activateBtn.Click += (s, e) => ChangeStatus("Activate");
-            footer.Controls.Add(activateBtn);
+            _activateBtn = new Button { Text = "ACTIVATE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0), Visible = false };
+            ThemeManager.StyleButton(_activateBtn, false);
+            _activateBtn.Click += (s, e) => ChangeStatus("Activate");
+            footer.Controls.Add(_activateBtn);
 
-            Button deleteBtn = new Button { Text = "DELETE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0) };
-            ThemeManager.StyleButton(deleteBtn, false);
-            deleteBtn.ForeColor = Color.FromArgb(233, 69, 96);
-            deleteBtn.Click += (s, e) => DeleteSociety();
-            footer.Controls.Add(deleteBtn);
+            _deleteBtn = new Button { Text = "DELETE", Width = 130, Dock = DockStyle.Left, Margin = new Padding(15, 0, 0, 0), Visible = false };
+            ThemeManager.StyleButton(_deleteBtn, false);
+            _deleteBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            _deleteBtn.Click += (s, e) => DeleteSociety();
+            footer.Controls.Add(_deleteBtn);
 
             this.ResumeLayout(false);
         }
@@ -153,6 +158,41 @@ namespace FASTSocietiesSystem.UI.Forms
             if (form.ShowDialog() == DialogResult.OK)
             {
                 LoadSocieties();
+            }
+        }
+
+        private void SocietiesGrid_SelectionChanged(object sender, EventArgs e)
+        {
+            if (_societiesGrid.SelectedRows.Count == 0)
+            {
+                _approveBtn.Visible = false;
+                _suspendBtn.Visible = false;
+                _activateBtn.Visible = false;
+                _deleteBtn.Visible = false;
+                return;
+            }
+
+            string status = _societiesGrid.SelectedRows[0].Cells[1].Value.ToString().ToUpper();
+            
+            _deleteBtn.Visible = true; // Delete always visible for selected rows
+
+            if (status == "PENDING")
+            {
+                _approveBtn.Visible = true;
+                _suspendBtn.Visible = false;
+                _activateBtn.Visible = false;
+            }
+            else if (status == "ACTIVE" || status == "APPROVED")
+            {
+                _approveBtn.Visible = false;
+                _suspendBtn.Visible = true;
+                _activateBtn.Visible = false;
+            }
+            else if (status == "SUSPENDED")
+            {
+                _approveBtn.Visible = false;
+                _suspendBtn.Visible = false;
+                _activateBtn.Visible = true;
             }
         }
 

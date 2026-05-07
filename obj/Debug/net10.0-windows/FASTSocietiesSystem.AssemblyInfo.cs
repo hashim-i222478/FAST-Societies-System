@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FASTSocietiesSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ebb4277501c7e0789e60bd8250c361d92e27068")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+19164f2d3526f77f108e44afdb5df88c130c3ca2")]
 [assembly: System.Reflection.AssemblyProductAttribute("FASTSocietiesSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FASTSocietiesSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

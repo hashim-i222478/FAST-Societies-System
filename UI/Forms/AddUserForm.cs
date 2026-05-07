@@ -89,15 +89,15 @@ namespace FASTSocietiesSystem.UI.Forms
             AddInputField(fieldsPanel, "PASSWORD", "passwordTextBox", true);
 
             // Role ComboBox
-            Panel roleGroup = new Panel { Size = new Size(420, 80), Margin = new Padding(0, 0, 0, 10) };
-            Label roleLbl = new Label { Text = "ASSIGN ROLE", Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Top, Height = 25 };
-            ComboBox roleCombo = new ComboBox { Name = "roleComboBox", Dock = DockStyle.Bottom, Height = 40, DropDownStyle = ComboBoxStyle.DropDownList };
+            Panel roleGroup = new Panel { Size = new Size(400, 75), Margin = new Padding(0, 0, 0, 15) };
+            Label roleLbl = new Label { Text = "ASSIGN ROLE", Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Location = new Point(0, 0), AutoSize = true };
+            ComboBox roleCombo = new ComboBox { Name = "roleComboBox", Location = new Point(0, 25), Width = 400, DropDownStyle = ComboBoxStyle.DropDownList };
             roleCombo.Items.AddRange(new string[] { "Student", "SocietyHead", "Admin" });
             roleCombo.SelectedIndex = 0;
-            // Styling combo box is tricky in WinForms without custom drawing, but we'll try basic colors
             roleCombo.BackColor = ThemeManager.Surface;
             roleCombo.ForeColor = ThemeManager.TextPrimary;
             roleCombo.FlatStyle = FlatStyle.Flat;
+            roleCombo.Font = ThemeManager.BodyFont;
             
             roleGroup.Controls.Add(roleLbl);
             roleGroup.Controls.Add(roleCombo);
@@ -122,9 +122,9 @@ namespace FASTSocietiesSystem.UI.Forms
 
         private void AddInputField(FlowLayoutPanel panel, string label, string name, bool isPassword = false)
         {
-            Panel group = new Panel { Size = new Size(420, 80), Margin = new Padding(0, 0, 0, 10) };
-            Label lbl = new Label { Text = label, Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Dock = DockStyle.Top, Height = 25 };
-            TextBox tb = new TextBox { Name = name, Dock = DockStyle.Bottom, Height = 40, UseSystemPasswordChar = isPassword };
+            Panel group = new Panel { Size = new Size(400, 75), Margin = new Padding(0, 0, 0, 15) };
+            Label lbl = new Label { Text = label, Font = ThemeManager.SmallFont, ForeColor = ThemeManager.Accent, Location = new Point(0, 0), AutoSize = true };
+            TextBox tb = new TextBox { Name = name, Location = new Point(0, 25), Width = 400, UseSystemPasswordChar = isPassword };
             ThemeManager.StyleTextBox(tb);
             
             group.Controls.Add(lbl);

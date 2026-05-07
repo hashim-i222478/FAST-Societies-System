@@ -17,6 +17,7 @@ namespace FASTSocietiesSystem.BLL
         private readonly TaskRepository _taskRepository;
         private readonly AnnouncementRepository _announcementRepository;
         private readonly UserRepository _userRepository;
+        private readonly LogRepository _logRepository;
 
         public SocietyService()
         {
@@ -26,6 +27,7 @@ namespace FASTSocietiesSystem.BLL
             _taskRepository = new TaskRepository();
             _announcementRepository = new AnnouncementRepository();
             _userRepository = new UserRepository();
+            _logRepository = new LogRepository();
         }
 
         /// <summary>
@@ -44,6 +46,8 @@ namespace FASTSocietiesSystem.BLL
             society.Status = status;
             int societyId = _societyRepository.CreateSociety(society);
             
+            _logRepository.AddLog(headId, "Society Creation", $"Society '{societyName}' created with status '{status}'");
+
             // If created as Pending (default), request approval
             if (status == "Pending")
             {
@@ -89,7 +93,12 @@ namespace FASTSocietiesSystem.BLL
             if (membership.SocietyId != societyId)
                 throw new UnauthorizedOperationException("You cannot approve this membership");
 
-            return _membershipRepository.ApproveMembership(membershipId);
+            bool success = _membershipRepository.ApproveMembership(membershipId);
+            if (success)
+            {
+                _logRepository.AddLog(null, "Membership Approval", $"Membership ID {membershipId} approved for Society {societyId}");
+            }
+            return success;
         }
 
         /// <summary>
@@ -145,6 +154,7 @@ namespace FASTSocietiesSystem.BLL
             Society society = _societyRepository.GetSocietyById(societyId);
             new ApprovalService().RequestEventApproval(eventId, society.HeadId, $"New event: {eventTitle}");
             
+            _logRepository.AddLog(society.HeadId, "Event Creation", $"Event '{eventTitle}' submitted for approval by Society {societyId}");
             return eventId;
         }
 
@@ -189,7 +199,9 @@ namespace FASTSocietiesSystem.BLL
             if (eventObj.SocietyId != societyId)
                 throw new UnauthorizedOperationException("You cannot cancel this event");
 
-            return _eventRepository.CancelEvent(eventId);
+            bool success = _eventRepository.CancelEvent(eventId);
+            if (success) _logRepository.AddLog(null, "Event Cancelled", $"Event ID {eventId} cancelled by Society {societyId}");
+            return success;
         }
 
         /// <summary>
@@ -209,7 +221,9 @@ namespace FASTSocietiesSystem.BLL
                 AssignedTo = assignedTo
             };
 
-            return _taskRepository.CreateTask(task);
+            int taskId = _taskRepository.CreateTask(task);
+            _logRepository.AddLog(null, "Task Created", $"Task '{taskTitle}' created for Society {societyId}" + (assignedTo.HasValue ? $" assigned to User {assignedTo}" : ""));
+            return taskId;
         }
 
         /// <summary>
@@ -320,7 +334,9 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public bool SuspendSociety(int societyId)
         {
-            return _societyRepository.SuspendSociety(societyId);
+            bool success = _societyRepository.SuspendSociety(societyId);
+            if (success) _logRepository.AddLog(null, "Society Suspended", $"Society ID {societyId} suspended by Admin");
+            return success;
         }
 
         /// <summary>
@@ -328,7 +344,9 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public bool ActivateSociety(int societyId)
         {
-            return _societyRepository.ActivateSociety(societyId);
+            bool success = _societyRepository.ActivateSociety(societyId);
+            if (success) _logRepository.AddLog(null, "Society Activated", $"Society ID {societyId} activated by Admin");
+            return success;
         }
 
         /// <summary>
@@ -336,7 +354,9 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public bool DeleteSociety(int societyId)
         {
-            return _societyRepository.DeleteSociety(societyId);
+            bool success = _societyRepository.DeleteSociety(societyId);
+            if (success) _logRepository.AddLog(null, "Society Deleted", $"Society ID {societyId} permanently deleted by Admin");
+            return success;
         }
 
         /// <summary>
@@ -344,7 +364,9 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public bool ApproveSociety(int societyId)
         {
-            return _societyRepository.ApproveSociety(societyId);
+            bool success = _societyRepository.ApproveSociety(societyId);
+            if (success) _logRepository.AddLog(null, "Society Approved", $"Society ID {societyId} approved by Admin");
+            return success;
         }
     }
 }

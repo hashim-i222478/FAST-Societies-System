@@ -103,9 +103,13 @@ namespace FASTSocietiesSystem.UI.Helpers
             grid.BackgroundColor = Background;
             grid.GridColor = Border;
             grid.BorderStyle = BorderStyle.None;
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
             grid.ColumnHeadersDefaultCellStyle.BackColor = Surface;
             grid.ColumnHeadersDefaultCellStyle.ForeColor = Accent;
             grid.ColumnHeadersDefaultCellStyle.Font = SubHeaderFont;
+            grid.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            grid.ColumnHeadersHeight = 55;
+            grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             grid.EnableHeadersVisualStyles = false;
             grid.DefaultCellStyle.BackColor = Surface;
             grid.DefaultCellStyle.ForeColor = TextPrimary;
@@ -114,6 +118,7 @@ namespace FASTSocietiesSystem.UI.Helpers
             grid.RowHeadersVisible = false;
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            grid.RowTemplate.Height = 35;
         }
 
         public static void StyleSidebarButton(Button btn)

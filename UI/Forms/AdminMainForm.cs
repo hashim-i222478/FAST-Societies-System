@@ -234,7 +234,8 @@ namespace FASTSocietiesSystem.UI.Forms
 
         private void OpenUniversityReport()
         {
-            UIHelpers.ShowInfo("University Report - View institution-wide statistics");
+            AdminReportsForm form = new AdminReportsForm();
+            form.ShowDialog();
         }
 
         private void OpenMembershipReport()

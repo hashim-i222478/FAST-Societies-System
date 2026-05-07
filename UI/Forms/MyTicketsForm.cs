@@ -96,6 +96,8 @@ namespace FASTSocietiesSystem.UI.Forms
             _ticketsGrid.Columns.Add("EventDate", "EVENT DATE");
             _ticketsGrid.Columns.Add("Status", "STATUS");
             _ticketsGrid.Columns.Add("RegistrationDate", "REGISTERED ON");
+            _ticketsGrid.Columns.Add("RegistrationId", "ID");
+            _ticketsGrid.Columns["RegistrationId"].Visible = false;
             contentPanel.Controls.Add(_ticketsGrid);
 
             _emptyLabel = new Label
@@ -151,6 +153,8 @@ namespace FASTSocietiesSystem.UI.Forms
 
                     foreach (var registration in registrations)
                     {
+                        if (registration.AttendanceStatus == "Cancelled") continue;
+
                         Event evt = _studentService.GetEventDetails(registration.EventId);
                         
                         _ticketsGrid.Rows.Add(
@@ -158,8 +162,15 @@ namespace FASTSocietiesSystem.UI.Forms
                             registration.TicketId,
                             UIHelpers.FormatDate(evt.EventDate),
                             registration.AttendanceStatus,
-                            UIHelpers.FormatDate(registration.RegistrationDate)
+                            UIHelpers.FormatDate(registration.RegistrationDate),
+                            registration.RegistrationId
                         );
+                    }
+                    
+                    if (_ticketsGrid.Rows.Count == 0)
+                    {
+                        _ticketsGrid.Visible = false;
+                        _emptyLabel.Visible = true;
                     }
                 }
             }
@@ -218,7 +229,9 @@ namespace FASTSocietiesSystem.UI.Forms
 
                 if (UIHelpers.ShowConfirm($"Are you sure you want to cancel your registration for '{eventTitle}'?", "Confirm Cancellation"))
                 {
-                    // Logic to cancel registration would go here
+                    int registrationId = (int)_ticketsGrid.SelectedRows[0].Cells[5].Value;
+                    _studentService.CancelEventRegistration(registrationId, _studentId);
+                    
                     UIHelpers.ShowInfo("Your registration has been cancelled successfully.");
                     LoadTickets();
                 }

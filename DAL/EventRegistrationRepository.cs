@@ -20,9 +20,19 @@ namespace FASTSocietiesSystem.DAL
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string query = @"INSERT INTO [EventRegistration] (StudentId, EventId, RegistrationDate, TicketId, AttendanceStatus, CreatedDate)
-                                   VALUES (@StudentId, @EventId, @RegistrationDate, @TicketId, @AttendanceStatus, @CreatedDate);
-                                   SELECT SCOPE_IDENTITY();";
+                    string query = @"IF EXISTS (SELECT 1 FROM [EventRegistration] WHERE StudentId = @StudentId AND EventId = @EventId)
+                                     BEGIN
+                                         UPDATE [EventRegistration]
+                                         SET RegistrationDate = @RegistrationDate, TicketId = @TicketId, AttendanceStatus = @AttendanceStatus, CreatedDate = @CreatedDate, CheckInDate = NULL
+                                         WHERE StudentId = @StudentId AND EventId = @EventId;
+                                         SELECT RegistrationId FROM [EventRegistration] WHERE StudentId = @StudentId AND EventId = @EventId;
+                                     END
+                                     ELSE
+                                     BEGIN
+                                         INSERT INTO [EventRegistration] (StudentId, EventId, RegistrationDate, TicketId, AttendanceStatus, CreatedDate)
+                                         VALUES (@StudentId, @EventId, @RegistrationDate, @TicketId, @AttendanceStatus, @CreatedDate);
+                                         SELECT SCOPE_IDENTITY();
+                                     END";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {

@@ -25,6 +25,7 @@ namespace FASTSocietiesSystem.UI.Forms
         }
 
         private Label _emptyLabel;
+        private Button _applyButton;
 
         private void InitializeComponent()
         {
@@ -95,6 +96,10 @@ namespace FASTSocietiesSystem.UI.Forms
             _societiesGrid.Columns.Add("SocietyName", "SOCIETY NAME");
             _societiesGrid.Columns.Add("Description", "DESCRIPTION");
             _societiesGrid.Columns.Add("MemberCount", "MEMBERS");
+            _societiesGrid.Columns.Add("Status", "MY STATUS");
+            
+            _societiesGrid.SelectionChanged += SocietiesGrid_SelectionChanged;
+            
             contentPanel.Controls.Add(_societiesGrid);
 
             _emptyLabel = new Label
@@ -112,10 +117,10 @@ namespace FASTSocietiesSystem.UI.Forms
             Panel footer = new Panel { Dock = DockStyle.Fill };
             mainGrid.Controls.Add(footer, 0, 2);
 
-            Button applyButton = new Button { Text = "APPLY FOR MEMBERSHIP", Width = 250, Dock = DockStyle.Left };
-            ThemeManager.StyleButton(applyButton);
-            applyButton.Click += ApplyButton_Click;
-            footer.Controls.Add(applyButton);
+            _applyButton = new Button { Text = "APPLY FOR MEMBERSHIP", Width = 250, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(_applyButton);
+            _applyButton.Click += ApplyButton_Click;
+            footer.Controls.Add(_applyButton);
 
             Button closeButton = new Button { Text = "BACK TO DASHBOARD", Width = 200, Dock = DockStyle.Right };
             ThemeManager.StyleButton(closeButton, false);
@@ -145,7 +150,17 @@ namespace FASTSocietiesSystem.UI.Forms
                     foreach (var society in societies)
                     {
                         int memberCount = new SocietyService().GetMemberCount(society.SocietyId);
-                        _societiesGrid.Rows.Add(society.SocietyId, society.SocietyName, society.Description, memberCount);
+                        
+                        string statusDisplay = "Not Applied";
+                        var membership = _studentService.GetMembershipStatus(_studentId, society.SocietyId);
+                        if (membership != null)
+                        {
+                            if (membership.Status == "Pending") statusDisplay = "Pending";
+                            else if (membership.Status == "Active") statusDisplay = "Member";
+                            else if (membership.Status == "Rejected") statusDisplay = "Rejected";
+                        }
+                        
+                        _societiesGrid.Rows.Add(society.SocietyId, society.SocietyName, society.Description, memberCount, statusDisplay);
                     }
                 }
             }
@@ -182,6 +197,33 @@ namespace FASTSocietiesSystem.UI.Forms
             catch (Exception ex)
             {
                 UIHelpers.ShowError($"Failed to process application: {ex.Message}");
+            }
+        }
+
+        private void SocietiesGrid_SelectionChanged(object sender, EventArgs e)
+        {
+            if (_societiesGrid.SelectedRows.Count > 0)
+            {
+                string status = (string)_societiesGrid.SelectedRows[0].Cells[4].Value;
+                
+                if (status == "Member")
+                {
+                    _applyButton.Text = "ALREADY A MEMBER";
+                    _applyButton.Enabled = false;
+                    _applyButton.BackColor = System.Drawing.Color.Gray;
+                }
+                else if (status == "Pending")
+                {
+                    _applyButton.Text = "APPLICATION PENDING";
+                    _applyButton.Enabled = false;
+                    _applyButton.BackColor = System.Drawing.Color.Gray;
+                }
+                else
+                {
+                    _applyButton.Text = "APPLY FOR MEMBERSHIP";
+                    _applyButton.Enabled = true;
+                    _applyButton.BackColor = ThemeManager.Accent;
+                }
             }
         }
     }

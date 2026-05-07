@@ -176,8 +176,8 @@ namespace FASTSocietiesSystem.UI.Forms
                 return;
             }
 
-            string societyName = (string)_membershipsGrid.SelectedRows[0].Cells[0].Value;
-            UIHelpers.ShowInfo($"Viewing events for: {societyName}", "Society Hub");
+            BrowseEventsForm browseEventsForm = new BrowseEventsForm(_studentId);
+            browseEventsForm.ShowDialog();
         }
 
         private void LeaveButton_Click(object sender, EventArgs e)

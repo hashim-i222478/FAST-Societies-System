@@ -5,63 +5,75 @@ A premium, high-performance desktop application built for automating and central
 ## ✨ Key Features
 
 ### 🏛️ Administrative Oversight
-- **Full Society Lifecycle**: Create, approve, suspend, or delete societies with a single click.
-- **User Management**: Unified dashboard to manage Students, Society Heads, and Admins.
-- **Audit Trails**: Real-time **System Logs** to track all critical administrative actions for accountability.
-- **Global Control**: Override capabilities for events and membership approvals.
+- **Society Lifecycle Management**: Create, approve, suspend, or delete societies with a dynamic, context-aware interface.
+- **University-Wide Analytics**: Generate and export (CSV) detailed reports on user distribution, society performance, and event engagement.
+- **System Activity Logs**: Real-time audit trails tracking logins, registrations, and administrative actions for full accountability.
+- **User Control**: Centralized dashboard to manage Students, Society Heads, and Admins including account status management.
+- **Event Approvals**: Dedicated queue for reviewing and approving society-hosted events.
 
 ### 👑 Society Head Portal
-- **Event Lifecycle**: Complete control to **Create, Update, and Cancel** society events.
-- **Member Management**: Manage internal member lists, including removing inactive members.
-- **Membership Processing**: Dedicated queue to review and approve/reject new student applications.
-- **Dashboard**: Real-time stats on society growth and upcoming logistics.
+- **Society Dashboard**: Overview of memberships, pending requests, and upcoming logistics.
+- **Event Lifecycle**: Complete control to create, update, and cancel events for the society.
+- **Task Management**: Assign and track tasks for society members to ensure smooth event execution.
+- **Performance Reporting**: Generate society-specific CSV reports for member attendance and event statistics.
+- **Membership Processing**: Approve or reject new student applications with a single click.
 
 ### 🎓 Student Experience
-- **Browse & Join**: Discover active societies and apply for memberships seamlessly.
-- **Event Registration**: Stay updated with upcoming campus events and register instantly.
-- **Personal Dashboard**: Track active memberships and registered event schedules.
+- **Browse & Join**: Discover active societies, view their profiles, and apply for membership.
+- **Event Discovery**: Stay updated with campus-wide activities and register for events instantly.
+- **Digital Tickets**: View and manage tickets for registered events.
+- **Personal Portfolio**: Track active memberships and assigned tasks from societies.
 
 ## 🎨 Design Philosophy: "Midnight Editorial"
 The system features a bespoke UI design system characterized by:
 - **High-Contrast Dark Mode**: Tailored for reduced eye strain and a professional look.
-- **Glassmorphism & Gradients**: Subtle visual effects for a premium, state-of-the-art feel.
-- **Responsive Layouts**: Programmatically generated UI (no WinForms Designer) ensuring consistency across resolutions.
+- **Glassmorphism & Micro-animations**: Subtle visual effects for a premium, state-of-the-art feel.
+- **Responsive Layouts**: Programmatically generated UI ensuring consistency across various screen resolutions.
+- **Dynamic Interaction**: Context-sensitive controls that guide users through the correct workflows.
 
 ## 🛠️ Technology Stack
-- **Language**: C# (.NET Core)
-- **Framework**: Windows Forms (Programmatic UI)
+- **Language**: C# (.NET Core / .NET 10)
+- **Framework**: Windows Forms (Bespoke Programmatic UI)
 - **Database**: Microsoft SQL Server (LocalDB / SQLEXPRESS)
-- **Architecture**: N-Tier Architecture (DAL, BLL, UI layers) for maximum scalability.
+- **Architecture**: N-Tier Architecture (DAL, BLL, UI layers) for maximum scalability and clean separation of concerns.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- .NET 8.0 SDK or later
-- SQL Server Express (Local instance)
+- .NET 10.0 SDK or later
+- Microsoft SQL Server 2019+ or LocalDB
+- `Microsoft.Data.SqlClient` library
 
 ### Installation
-1. **Database Setup**:
-   - Run the provided `database-schema-clean.sql` script on your SQL Server instance (`.\SQLEXPRESS`).
-   - The system automatically targets `FASTSocietiesSystemDB`.
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/hashim-i222478/FAST-Societies-System.git
+   ```
 
-2. **Configuration**:
-   - Update the connection string in `DAL/DatabaseConnection.cs` if your SQL instance name differs.
+2. **Database Setup**:
+   - Execute the `database-schema-clean.sql` script located in the root directory on your SQL Server instance.
+   - The script creates the `FASTSocietiesSystemDB` and all necessary tables/views.
 
-3. **Run the App**:
+3. **Configuration**:
+   - Verify the connection string in `FASTSocietiesSystem/DAL/DatabaseConnection.cs` matches your local server instance name.
+
+4. **Build & Run**:
    ```bash
    cd FASTSocietiesSystem
+   dotnet build
    dotnet run
    ```
 
 ### Default Credentials
-- **Admin**: `admin@fast.com` / `Admin123`
-- **Student/Head**: Register via the app's sign-up screen.
+- **Admin Access**: `admin@fast.com` / `Admin123`
+- **Other Users**: Register a new account via the **Sign Up** link on the login screen.
 
 ## 📝 Project Structure
-- `Models/`: Domain entities (User, Society, Event, Membership).
-- `DAL/`: Data Access Layer handling SQL operations.
-- `BLL/`: Business Logic Layer enforcing system rules.
-- `UI/`: Programmatic WinForms components and custom theme helpers.
+- `Models/`: Core domain entities and data structures.
+- `DAL/`: Data Access Layer implementing the Repository pattern.
+- `BLL/`: Business Logic Layer containing system services and validation.
+- `UI/Forms/`: Custom-built programmatic Windows Forms.
+- `UI/Helpers/`: Theme Manager and UI utility controls.
 
 ---
 *Developed for SMM Project - Semester 8*

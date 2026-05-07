@@ -1,29 +1,32 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using FASTSocietiesSystem.BLL;
+using FASTSocietiesSystem.DAL;
 using FASTSocietiesSystem.Models;
 using FASTSocietiesSystem.UI.Helpers;
+using Task = FASTSocietiesSystem.Models.Task;
 
 namespace FASTSocietiesSystem.UI.Forms
 {
-    /// <summary>
-    /// Form for creating new tasks
-    /// </summary>
     public partial class CreateTaskForm : Form
     {
         private int _headId;
         private SocietyService _societyService;
+        private UserRepository _userRepository;
         private ComboBox _societyComboBox;
         private TextBox _titleTextBox;
         private TextBox _descriptionTextBox;
         private DateTimePicker _dueDatePicker;
         private ComboBox _priorityComboBox;
+        private ComboBox _assignedToComboBox;
 
         public CreateTaskForm(int headId)
         {
             _headId = headId;
             _societyService = new SocietyService();
+            _userRepository = new UserRepository();
             InitializeComponent();
         }
 
@@ -31,132 +34,116 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "Create Task";
-            this.Size = new System.Drawing.Size(450, 450);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.Text = "Create Task - FAST Societies";
+            this.Size = new System.Drawing.Size(550, 700);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = ThemeManager.Background;
 
-            // Title
+            TableLayoutPanel mainGrid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(40)
+            };
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Header
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Content
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Footer
+            this.Controls.Add(mainGrid);
+
+            // Window Controls
+            FlowLayoutPanel windowControls = new FlowLayoutPanel
+            {
+                Size = new Size(100, 40),
+                Location = new Point(450, 0),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 0, 0, 0)
+            };
+            this.Controls.Add(windowControls);
+            windowControls.BringToFront();
+
+            Button closeBtn = new Button { Text = "×", Size = new Size(40, 40), FlatStyle = FlatStyle.Flat, ForeColor = ThemeManager.TextSecondary, Font = new Font("Arial", 18, FontStyle.Bold), Cursor = Cursors.Hand, Margin = new Padding(0) };
+            closeBtn.FlatAppearance.BorderSize = 0;
+            closeBtn.Click += (s, e) => this.Close();
+            closeBtn.MouseEnter += (s, e) => closeBtn.ForeColor = Color.FromArgb(233, 69, 96);
+            closeBtn.MouseLeave += (s, e) => closeBtn.ForeColor = ThemeManager.TextSecondary;
+            windowControls.Controls.Add(closeBtn);
+
+            // Header
             Label titleLabel = new Label
             {
                 Text = "Create New Task",
-                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(20, 20),
-                Size = new System.Drawing.Size(350, 30)
+                Font = ThemeManager.TitleFont,
+                ForeColor = ThemeManager.TextPrimary,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.BottomLeft
             };
-            this.Controls.Add(titleLabel);
+            mainGrid.Controls.Add(titleLabel, 0, 0);
 
-            int yPos = 70;
-
-            // Society Selection
-            Label societyLabel = new Label
+            // Content Panel
+            FlowLayoutPanel contentPanel = new FlowLayoutPanel
             {
-                Text = "Select Society:",
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(400, 20)
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true
             };
-            this.Controls.Add(societyLabel);
-            yPos += 30;
+            mainGrid.Controls.Add(contentPanel, 0, 1);
 
-            _societyComboBox = new ComboBox
+            // Form Fields Helper
+            void AddField(string labelText, Control inputControl)
             {
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(400, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            PopulateSocieties();
-            this.Controls.Add(_societyComboBox);
-            yPos += 35;
+                Panel fieldPanel = new Panel { Width = 420, Height = inputControl.Height + 45, Margin = new Padding(0, 0, 0, 15) };
+                Label lbl = new Label { Text = labelText, Font = ThemeManager.BodyFont, ForeColor = ThemeManager.TextSecondary, AutoSize = true, Location = new Point(0, 0) };
+                fieldPanel.Controls.Add(lbl);
+                inputControl.Location = new Point(0, 30);
+                inputControl.Width = 410;
+                fieldPanel.Controls.Add(inputControl);
+                contentPanel.Controls.Add(fieldPanel);
+            }
 
-            // Task Title
-            Label taskTitleLabel = new Label
-            {
-                Text = "Task Title:",
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(400, 20)
-            };
-            this.Controls.Add(taskTitleLabel);
-            yPos += 30;
+            _societyComboBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = ThemeManager.BodyFont };
+            _societyComboBox.SelectedIndexChanged += SocietyComboBox_SelectedIndexChanged;
+            AddField("Select Society:", _societyComboBox);
+            
+            _titleTextBox = new TextBox { Font = ThemeManager.BodyFont };
+            AddField("Task Title:", _titleTextBox);
 
-            _titleTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(400, 30),
-                Font = new System.Drawing.Font("Segoe UI", 10)
-            };
-            this.Controls.Add(_titleTextBox);
-            yPos += 35;
+            _descriptionTextBox = new TextBox { Font = ThemeManager.BodyFont, Multiline = true, Height = 80, ScrollBars = ScrollBars.Vertical };
+            AddField("Description:", _descriptionTextBox);
 
-            // Due Date
-            Label dueDateLabel = new Label
-            {
-                Text = "Due Date:",
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(400, 20)
-            };
-            this.Controls.Add(dueDateLabel);
-            yPos += 30;
+            _dueDatePicker = new DateTimePicker { Format = DateTimePickerFormat.Short, Font = ThemeManager.BodyFont };
+            AddField("Due Date:", _dueDatePicker);
 
-            _dueDatePicker = new DateTimePicker
-            {
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(200, 30),
-                Format = DateTimePickerFormat.Short
-            };
-            this.Controls.Add(_dueDatePicker);
-            yPos += 35;
-
-            // Priority
-            Label priorityLabel = new Label
-            {
-                Text = "Priority:",
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(400, 20)
-            };
-            this.Controls.Add(priorityLabel);
-            yPos += 30;
-
-            _priorityComboBox = new ComboBox
-            {
-                Location = new System.Drawing.Point(20, yPos),
-                Size = new System.Drawing.Size(400, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Items = { "Low", "Medium", "High", "Critical" }
-            };
+            _priorityComboBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = ThemeManager.BodyFont };
+            _priorityComboBox.Items.AddRange(new object[] { "Low", "Medium", "High", "Critical" });
             _priorityComboBox.SelectedIndex = 1;
-            this.Controls.Add(_priorityComboBox);
-            yPos += 35;
+            AddField("Priority:", _priorityComboBox);
 
-            // Create Button
-            Button createButton = new Button
-            {
-                Text = "Create Task",
-                Location = new System.Drawing.Point(80, yPos),
-                Size = new System.Drawing.Size(120, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Green,
-                ForeColor = System.Drawing.Color.White
-            };
+            _assignedToComboBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = ThemeManager.BodyFont };
+            AddField("Assign To (Optional):", _assignedToComboBox);
+
+            // Footer
+            Panel footer = new Panel { Dock = DockStyle.Fill };
+            mainGrid.Controls.Add(footer, 0, 2);
+
+            Button createButton = new Button { Text = "CREATE TASK", Width = 150, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(createButton, false);
+            createButton.ForeColor = Color.FromArgb(76, 175, 80); // Green
             createButton.Click += CreateButton_Click;
-            this.Controls.Add(createButton);
+            footer.Controls.Add(createButton);
 
-            // Cancel Button
-            Button cancelButton = new Button
-            {
-                Text = "Cancel",
-                Location = new System.Drawing.Point(210, yPos),
-                Size = new System.Drawing.Size(120, 35),
-                Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White
-            };
+            Button cancelButton = new Button { Text = "CANCEL", Width = 150, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(cancelButton, false);
             cancelButton.Click += (s, e) => this.Close();
-            this.Controls.Add(cancelButton);
+            footer.Controls.Add(cancelButton);
 
             this.ResumeLayout(false);
+            
+            PopulateSocieties();
         }
 
         private void PopulateSocieties()
@@ -177,6 +164,34 @@ namespace FASTSocietiesSystem.UI.Forms
             catch (Exception ex)
             {
                 UIHelpers.ShowError($"Failed to load societies: {ex.Message}");
+            }
+        }
+
+        private void SocietyComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_societyComboBox.SelectedIndex < 0) return;
+
+            try
+            {
+                int societyId = ((ComboBoxItem)_societyComboBox.SelectedItem).Value;
+                var members = _societyService.GetSocietyMembers(societyId);
+                
+                _assignedToComboBox.Items.Clear();
+                _assignedToComboBox.Items.Add(new ComboBoxItem { Text = "-- Society-Wide Task (No Assignment) --", Value = 0 });
+                
+                foreach (var member in members)
+                {
+                    var student = _userRepository.GetUserById(member.StudentId);
+                    if (student != null)
+                    {
+                        _assignedToComboBox.Items.Add(new ComboBoxItem { Text = student.FullName, Value = student.UserId });
+                    }
+                }
+                _assignedToComboBox.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                UIHelpers.ShowError($"Failed to load members: {ex.Message}");
             }
         }
 
@@ -207,8 +222,15 @@ namespace FASTSocietiesSystem.UI.Forms
                 }
 
                 int societyId = ((ComboBoxItem)_societyComboBox.SelectedItem).Value;
+                string description = _descriptionTextBox.Text.Trim();
                 
-                _societyService.CreateTask(societyId, title, "", dueDate, priority);
+                int? assignedTo = null;
+                if (_assignedToComboBox.SelectedIndex > 0)
+                {
+                    assignedTo = ((ComboBoxItem)_assignedToComboBox.SelectedItem).Value;
+                }
+                
+                _societyService.CreateTask(societyId, title, description, dueDate, priority, assignedTo);
                 UIHelpers.ShowInfo("Task created successfully");
                 this.Close();
             }

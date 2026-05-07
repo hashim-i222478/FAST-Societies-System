@@ -195,7 +195,7 @@ namespace FASTSocietiesSystem.BLL
         /// <summary>
         /// Creates a task within the society
         /// </summary>
-        public int CreateTask(int societyId, string taskTitle, string description, DateTime dueDate, string priority = "Medium")
+        public int CreateTask(int societyId, string taskTitle, string description, DateTime dueDate, string priority = "Medium", int? assignedTo = null)
         {
             if (string.IsNullOrEmpty(taskTitle))
                 throw new ValidationException("Task title is required");
@@ -205,7 +205,8 @@ namespace FASTSocietiesSystem.BLL
 
             Task task = new Task(societyId, taskTitle, description, dueDate)
             {
-                Priority = priority
+                Priority = priority,
+                AssignedTo = assignedTo
             };
 
             return _taskRepository.CreateTask(task);

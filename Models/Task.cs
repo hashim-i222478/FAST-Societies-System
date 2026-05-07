@@ -8,6 +8,7 @@ namespace FASTSocietiesSystem.Models
         public int TaskId { get; set; }
         public int SocietyId { get; set; }
         public int? CompletedBy { get; set; }
+        public int? AssignedTo { get; set; }
         public string TaskTitle { get; set; }
         public string Description { get; set; }
         public DateTime DueDate { get; set; }

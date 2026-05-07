@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using FASTSocietiesSystem.BLL;
+using FASTSocietiesSystem.Models;
 using FASTSocietiesSystem.UI.Helpers;
 
 namespace FASTSocietiesSystem.UI.Forms
@@ -19,6 +20,45 @@ namespace FASTSocietiesSystem.UI.Forms
             _studentId = (int)AuthenticationManager.Instance.CurrentUserId;
             _studentName = AuthenticationManager.Instance.GetCurrentUserName();
             CenterToScreen();
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            CheckForCancelledEvents();
+        }
+
+        private void CheckForCancelledEvents()
+        {
+            try
+            {
+                StudentService studentService = new StudentService();
+                var registrations = studentService.GetMyEventRegistrations(_studentId);
+                if (registrations != null)
+                {
+                    bool hasCancelled = false;
+                    foreach (var reg in registrations)
+                    {
+                        if (reg.AttendanceStatus == "Cancelled") continue; // Skip if student cancelled it
+                        
+                        Event evt = studentService.GetEventDetails(reg.EventId);
+                        if (evt != null && evt.Status == "Cancelled")
+                        {
+                            hasCancelled = true;
+                            break;
+                        }
+                    }
+
+                    if (hasCancelled)
+                    {
+                        UIHelpers.ShowInfo("One or more events you registered for have been cancelled by the organizers. Please check 'My Tickets' for details.", "Important Update");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Suppress background errors on load
+            }
         }
 
         private void InitializeComponent()
@@ -71,6 +111,7 @@ namespace FASTSocietiesSystem.UI.Forms
             AddSidebarButton(sidebarLayout, "My Memberships", (s, e) => OpenMyMemberships(), 3);
             AddSidebarButton(sidebarLayout, "Browse Events", (s, e) => OpenBrowseEvents(), 4);
             AddSidebarButton(sidebarLayout, "My Tickets", (s, e) => OpenMyTickets(), 5);
+            AddSidebarButton(sidebarLayout, "My Tasks", (s, e) => OpenMyTasks(), 6);
 
             Button logoutBtn = new Button { Text = "Logout", Dock = DockStyle.Fill };
             ThemeManager.StyleSidebarButton(logoutBtn);
@@ -123,6 +164,7 @@ namespace FASTSocietiesSystem.UI.Forms
             AddDashboardCard(grid, "Societies", "Explore and join university societies.", Color.FromArgb(0, 212, 255), (s, e) => OpenBrowseSocieties());
             AddDashboardCard(grid, "Events", "Register for upcoming workshops and talks.", Color.FromArgb(233, 69, 96), (s, e) => OpenBrowseEvents());
             AddDashboardCard(grid, "Tickets", "View your active event passes.", Color.FromArgb(106, 76, 239), (s, e) => OpenMyTickets());
+            AddDashboardCard(grid, "Tasks", "View and complete your assigned society tasks.", Color.FromArgb(76, 175, 80), (s, e) => OpenMyTasks());
             AddDashboardCard(grid, "Profile", "Manage your account and password.", Color.FromArgb(255, 171, 64), (s, e) => OpenProfile());
 
             this.ResumeLayout(false);
@@ -213,6 +255,12 @@ namespace FASTSocietiesSystem.UI.Forms
         private void OpenMyTickets()
         {
             MyTicketsForm form = new MyTicketsForm(_studentId);
+            form.ShowDialog();
+        }
+
+        private void OpenMyTasks()
+        {
+            MyTasksForm form = new MyTasksForm(_studentId);
             form.ShowDialog();
         }
 

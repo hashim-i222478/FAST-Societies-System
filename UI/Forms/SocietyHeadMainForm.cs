@@ -61,6 +61,7 @@ namespace FASTSocietiesSystem.UI.Forms
             sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Requests
             sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Events
             sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Tasks
+            sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Reports
             sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Spacer
             sidebarLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Logout
             sidebar.Controls.Add(sidebarLayout);
@@ -72,7 +73,8 @@ namespace FASTSocietiesSystem.UI.Forms
             AddSidebarButton(sidebarLayout, "Societies", (s, e) => OpenSocietyManagement(), 2);
             AddSidebarButton(sidebarLayout, "Members", (s, e) => OpenMemberManagement(), 3);
             AddSidebarButton(sidebarLayout, "Events", (s, e) => OpenManageEvents(), 4);
-            AddSidebarButton(sidebarLayout, "Tasks", (s, e) => OpenCreateTask(), 5);
+            AddSidebarButton(sidebarLayout, "Tasks", (s, e) => OpenViewTasks(), 5);
+            AddSidebarButton(sidebarLayout, "Reports", (s, e) => OpenReports(), 6);
 
             Button logoutBtn = new Button { Text = "Logout", Dock = DockStyle.Fill };
             ThemeManager.StyleSidebarButton(logoutBtn);
@@ -123,7 +125,8 @@ namespace FASTSocietiesSystem.UI.Forms
             AddDashboardCard(grid, "Members", "Manage internal member lists.", Color.FromArgb(0, 255, 159), (s, e) => OpenMemberManagement());
             AddDashboardCard(grid, "Events", "Create, update, or cancel events.", Color.FromArgb(106, 76, 239), (s, e) => OpenManageEvents());
             AddDashboardCard(grid, "Requests", "Review new membership applications.", Color.FromArgb(233, 69, 96), (s, e) => OpenMembershipRequests());
-            AddDashboardCard(grid, "Tasks", "Assign and track core team tasks.", Color.FromArgb(255, 171, 64), (s, e) => OpenCreateTask());
+            AddDashboardCard(grid, "Tasks", "Assign and track core team tasks.", Color.FromArgb(255, 171, 64), (s, e) => OpenViewTasks());
+            AddDashboardCard(grid, "Reports", "Generate member and event analytics.", Color.FromArgb(0, 212, 255), (s, e) => OpenReports());
 
             this.ResumeLayout(false);
         }
@@ -234,19 +237,25 @@ namespace FASTSocietiesSystem.UI.Forms
             form.ShowDialog();
         }
 
+        private void OpenReports()
+        {
+            ReportsForm form = new ReportsForm(_headId);
+            form.ShowDialog();
+        }
+
         private void OpenMembershipReport()
         {
-            UIHelpers.ShowInfo("Membership Report - View detailed membership statistics");
+            OpenReports();
         }
 
         private void OpenEventReport()
         {
-            UIHelpers.ShowInfo("Event Report - View event attendance and registration data");
+            OpenReports();
         }
 
         private void OpenTaskReport()
         {
-            UIHelpers.ShowInfo("Task Report - View task completion statistics");
+            OpenReports();
         }
 
         private void OpenChangePassword()

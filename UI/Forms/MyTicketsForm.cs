@@ -157,11 +157,17 @@ namespace FASTSocietiesSystem.UI.Forms
 
                         Event evt = _studentService.GetEventDetails(registration.EventId);
                         
+                        string displayStatus = registration.AttendanceStatus;
+                        if (evt.Status == "Cancelled")
+                        {
+                            displayStatus = "INVALID (EVENT CANCELLED)";
+                        }
+                        
                         _ticketsGrid.Rows.Add(
                             evt.EventTitle,
                             registration.TicketId,
                             UIHelpers.FormatDate(evt.EventDate),
-                            registration.AttendanceStatus,
+                            displayStatus,
                             UIHelpers.FormatDate(registration.RegistrationDate),
                             registration.RegistrationId
                         );
@@ -190,6 +196,13 @@ namespace FASTSocietiesSystem.UI.Forms
 
             try
             {
+                string status = (string)_ticketsGrid.SelectedRows[0].Cells[3].Value;
+                if (status.Contains("CANCELLED"))
+                {
+                    UIHelpers.ShowError("This event has been cancelled. The ticket is no longer valid.");
+                    return;
+                }
+
                 string eventTitle = (string)_ticketsGrid.SelectedRows[0].Cells[0].Value;
                 string ticketId = (string)_ticketsGrid.SelectedRows[0].Cells[1].Value;
                 
@@ -220,6 +233,12 @@ namespace FASTSocietiesSystem.UI.Forms
             {
                 string eventTitle = (string)_ticketsGrid.SelectedRows[0].Cells[0].Value;
                 string status = (string)_ticketsGrid.SelectedRows[0].Cells[3].Value;
+
+                if (status.Contains("CANCELLED"))
+                {
+                    UIHelpers.ShowError("This event is already cancelled.");
+                    return;
+                }
 
                 if (status == "CheckedIn")
                 {

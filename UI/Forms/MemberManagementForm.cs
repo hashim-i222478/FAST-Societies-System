@@ -41,9 +41,9 @@ namespace FASTSocietiesSystem.UI.Forms
                 RowCount = 3,
                 Padding = new Padding(40)
             };
-            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 100)); // Header
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // Header
             mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Content
-            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Footer
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 100)); // Footer
             this.Controls.Add(mainGrid);
 
             // Window Controls
@@ -74,7 +74,7 @@ namespace FASTSocietiesSystem.UI.Forms
                 Font = ThemeManager.TitleFont,
                 ForeColor = ThemeManager.TextPrimary,
                 Location = new Point(0, 0),
-                Size = new Size(400, 40)
+                AutoSize = true
             };
             header.Controls.Add(titleLabel);
 
@@ -110,13 +110,13 @@ namespace FASTSocietiesSystem.UI.Forms
             Panel footer = new Panel { Dock = DockStyle.Fill };
             mainGrid.Controls.Add(footer, 0, 2);
 
-            Button removeBtn = new Button { Text = "REMOVE MEMBER", Width = 180, Dock = DockStyle.Left };
+            Button removeBtn = new Button { Text = "REMOVE MEMBER", Width = 220, Height = 45, Dock = DockStyle.Left };
             ThemeManager.StyleButton(removeBtn, false);
             removeBtn.ForeColor = Color.FromArgb(233, 69, 96);
             removeBtn.Click += RemoveMember_Click;
             footer.Controls.Add(removeBtn);
 
-            Button refreshBtn = new Button { Text = "REFRESH", Width = 120, Dock = DockStyle.Right };
+            Button refreshBtn = new Button { Text = "REFRESH", Width = 150, Height = 45, Dock = DockStyle.Right };
             ThemeManager.StyleButton(refreshBtn, false);
             refreshBtn.Click += (s, e) => LoadMembers();
             footer.Controls.Add(refreshBtn);

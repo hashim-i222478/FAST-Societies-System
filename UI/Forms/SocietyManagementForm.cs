@@ -171,37 +171,14 @@ namespace FASTSocietiesSystem.UI.Forms
 
         private void ViewMembersButton_Click(object sender, EventArgs e)
         {
-            if (_societiesGrid.SelectedRows.Count == 0)
-            {
-                UIHelpers.ShowError("Please select a society");
-                return;
-            }
-
             try
             {
-                int societyId = (int)_societiesGrid.SelectedRows[0].Cells[0].Value;
-                string societyName = (string)_societiesGrid.SelectedRows[0].Cells[1].Value;
-
-                List<Membership> members = _societyService.GetSocietyMembers(societyId);
-                
-                string membersList = $"Members of {societyName}\n\n";
-                if (members.Count > 0)
-                {
-                    foreach (var member in members)
-                    {
-                        membersList += $"• Student ID: {member.StudentId} - Status: {member.Status}\n";
-                    }
-                }
-                else
-                {
-                    membersList += "No members yet";
-                }
-
-                UIHelpers.ShowInfo(membersList);
+                MemberManagementForm membersForm = new MemberManagementForm(_headId);
+                membersForm.ShowDialog();
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to load members: {ex.Message}");
+                UIHelpers.ShowError($"Failed to open member management: {ex.Message}");
             }
         }
     }

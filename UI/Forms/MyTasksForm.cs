@@ -3,25 +3,23 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using FASTSocietiesSystem.BLL;
-using FASTSocietiesSystem.DAL;
 using FASTSocietiesSystem.Models;
 using FASTSocietiesSystem.UI.Helpers;
 using Task = FASTSocietiesSystem.Models.Task;
 
 namespace FASTSocietiesSystem.UI.Forms
 {
-    public partial class ViewTasksForm : Form
+    public partial class MyTasksForm : Form
     {
-        private int _headId;
-        private SocietyService _societyService;
-        private UserRepository _userRepository;
+        private int _studentId;
+        private StudentService _studentService;
         private DataGridView _tasksGrid;
+        private Label _emptyLabel;
 
-        public ViewTasksForm(int headId)
+        public MyTasksForm(int studentId)
         {
-            _headId = headId;
-            _societyService = new SocietyService();
-            _userRepository = new UserRepository();
+            _studentId = studentId;
+            _studentService = new StudentService();
             InitializeComponent();
             LoadTasks();
         }
@@ -30,7 +28,7 @@ namespace FASTSocietiesSystem.UI.Forms
         {
             this.SuspendLayout();
 
-            this.Text = "Manage Tasks - FAST Societies";
+            this.Text = "My Tasks - FAST Societies";
             this.Size = new System.Drawing.Size(1000, 700);
             this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
@@ -76,7 +74,7 @@ namespace FASTSocietiesSystem.UI.Forms
             // Header
             Label titleLabel = new Label
             {
-                Text = "Society Tasks Management",
+                Text = "My Society Tasks",
                 Font = ThemeManager.TitleFont,
                 ForeColor = ThemeManager.TextPrimary,
                 Dock = DockStyle.Fill,
@@ -84,51 +82,51 @@ namespace FASTSocietiesSystem.UI.Forms
             };
             mainGrid.Controls.Add(titleLabel, 0, 0);
 
-            // Grid
+            // Content Area
             Panel contentPanel = new Panel { Dock = DockStyle.Fill };
             mainGrid.Controls.Add(contentPanel, 0, 1);
 
-            _tasksGrid = new DataGridView { Dock = DockStyle.Fill };
+            _tasksGrid = new DataGridView { Dock = DockStyle.Fill, Visible = false };
             ThemeManager.StyleGrid(_tasksGrid);
             _tasksGrid.Columns.Add("TaskId", "ID");
-            _tasksGrid.Columns.Add("Title", "TASK TITLE");
-            _tasksGrid.Columns.Add("AssignedTo", "ASSIGNED TO");
+            _tasksGrid.Columns.Add("TaskTitle", "TASK TITLE");
+            _tasksGrid.Columns.Add("SocietyName", "SOCIETY");
             _tasksGrid.Columns.Add("Priority", "PRIORITY");
             _tasksGrid.Columns.Add("DueDate", "DUE DATE");
             _tasksGrid.Columns.Add("Status", "STATUS");
             _tasksGrid.Columns["TaskId"].Visible = false;
             contentPanel.Controls.Add(_tasksGrid);
 
+            _emptyLabel = new Label
+            {
+                Text = "You don't have any tasks at the moment.\nEnjoy your free time!",
+                Font = ThemeManager.HeaderFont,
+                ForeColor = ThemeManager.TextSecondary,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Dock = DockStyle.Fill,
+                Visible = false
+            };
+            contentPanel.Controls.Add(_emptyLabel);
+
             // Footer
             Panel footer = new Panel { Dock = DockStyle.Fill };
             mainGrid.Controls.Add(footer, 0, 2);
 
-            Button completeButton = new Button { Text = "MARK COMPLETE", Width = 150, Dock = DockStyle.Left };
+            Button viewButton = new Button { Text = "VIEW DETAILS", Width = 150, Dock = DockStyle.Left };
+            ThemeManager.StyleButton(viewButton);
+            viewButton.Click += ViewButton_Click;
+            footer.Controls.Add(viewButton);
+
+            Button completeButton = new Button { Text = "MARK COMPLETE", Width = 180, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
             ThemeManager.StyleButton(completeButton, false);
             completeButton.ForeColor = Color.FromArgb(76, 175, 80); // Green
             completeButton.Click += CompleteButton_Click;
             footer.Controls.Add(completeButton);
 
-            Button deleteButton = new Button { Text = "DELETE", Width = 120, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
-            ThemeManager.StyleButton(deleteButton, false);
-            deleteButton.ForeColor = Color.FromArgb(233, 69, 96); // Red
-            deleteButton.Click += DeleteButton_Click;
-            footer.Controls.Add(deleteButton);
-
-            Button refreshButton = new Button { Text = "REFRESH", Width = 120, Dock = DockStyle.Left, Margin = new Padding(20, 0, 0, 0) };
-            ThemeManager.StyleButton(refreshButton, false);
-            refreshButton.Click += (s, e) => LoadTasks();
-            footer.Controls.Add(refreshButton);
-
-            Button createButton = new Button { Text = "CREATE NEW TASK", Width = 180, Dock = DockStyle.Right };
-            ThemeManager.StyleButton(createButton, false);
-            createButton.ForeColor = Color.FromArgb(255, 171, 64); // Orange
-            createButton.Click += (s, e) => {
-                CreateTaskForm form = new CreateTaskForm(_headId);
-                form.ShowDialog();
-                LoadTasks();
-            };
-            footer.Controls.Add(createButton);
+            Button closeButton = new Button { Text = "BACK TO DASHBOARD", Width = 200, Dock = DockStyle.Right };
+            ThemeManager.StyleButton(closeButton, false);
+            closeButton.Click += (s, e) => this.Close();
+            footer.Controls.Add(closeButton);
 
             this.ResumeLayout(false);
         }
@@ -138,29 +136,42 @@ namespace FASTSocietiesSystem.UI.Forms
             try
             {
                 _tasksGrid.Rows.Clear();
-                List<Society> societies = _societyService.GetMySocieties(_headId);
+                List<Task> tasks = _studentService.GetMyTasks(_studentId);
 
-                foreach (var society in societies)
+                if (tasks == null || tasks.Count == 0)
                 {
-                    List<Task> tasks = _societyService.GetSocietyTasks(society.SocietyId);
-                    
+                    _tasksGrid.Visible = false;
+                    _emptyLabel.Visible = true;
+                }
+                else
+                {
+                    _tasksGrid.Visible = true;
+                    _emptyLabel.Visible = false;
+
                     foreach (var task in tasks)
                     {
-                        string assignedName = "Society-Wide";
-                        if (task.AssignedTo.HasValue)
+                        string societyName = "Unknown Society";
+                        try 
                         {
-                            var user = _userRepository.GetUserById(task.AssignedTo.Value);
-                            if (user != null) assignedName = user.FullName;
+                            Society s = _studentService.GetSocietyDetails(task.SocietyId);
+                            if (s != null) societyName = s.SocietyName;
                         }
+                        catch { }
 
                         _tasksGrid.Rows.Add(
                             task.TaskId,
                             task.TaskTitle,
-                            assignedName,
+                            societyName,
                             task.Priority,
                             UIHelpers.FormatDate(task.DueDate),
                             task.Status
                         );
+                    }
+                    
+                    if (_tasksGrid.Rows.Count == 0)
+                    {
+                        _tasksGrid.Visible = false;
+                        _emptyLabel.Visible = true;
                     }
                 }
             }
@@ -170,11 +181,49 @@ namespace FASTSocietiesSystem.UI.Forms
             }
         }
 
+        private void ViewButton_Click(object sender, EventArgs e)
+        {
+            if (_tasksGrid.SelectedRows.Count == 0)
+            {
+                UIHelpers.ShowError("Please select a task from the list.");
+                return;
+            }
+
+            try
+            {
+                int taskId = (int)_tasksGrid.SelectedRows[0].Cells[0].Value;
+                
+                // Need to get full task for description
+                Task task = null;
+                List<Task> tasks = _studentService.GetMyTasks(_studentId);
+                foreach(var t in tasks)
+                {
+                    if (t.TaskId == taskId) { task = t; break; }
+                }
+
+                if (task != null)
+                {
+                    string info = $"TASK: {task.TaskTitle}\n" +
+                                  $"SOCIETY: {_tasksGrid.SelectedRows[0].Cells[2].Value}\n" +
+                                  $"PRIORITY: {task.Priority}\n" +
+                                  $"DUE DATE: {UIHelpers.FormatDate(task.DueDate)}\n" +
+                                  $"STATUS: {task.Status}\n\n" +
+                                  $"DESCRIPTION:\n{task.Description ?? "No description provided."}";
+                    
+                    UIHelpers.ShowInfo(info, "Task Details");
+                }
+            }
+            catch (Exception ex)
+            {
+                UIHelpers.ShowError($"An error occurred while retrieving task details: {ex.Message}");
+            }
+        }
+
         private void CompleteButton_Click(object sender, EventArgs e)
         {
             if (_tasksGrid.SelectedRows.Count == 0)
             {
-                UIHelpers.ShowError("Please select a task");
+                UIHelpers.ShowError("Please select a task to mark as complete.");
                 return;
             }
 
@@ -182,48 +231,26 @@ namespace FASTSocietiesSystem.UI.Forms
             {
                 int taskId = (int)_tasksGrid.SelectedRows[0].Cells[0].Value;
                 string taskTitle = (string)_tasksGrid.SelectedRows[0].Cells[1].Value;
+                string status = (string)_tasksGrid.SelectedRows[0].Cells[5].Value;
 
-                if (UIHelpers.ShowConfirm($"Mark '{taskTitle}' as complete?", "Confirm Completion"))
+                if (status == "Completed" || status == "Cancelled")
                 {
-                    Task task = new TaskRepository().GetTaskById(taskId);
-                    if (task != null)
+                    UIHelpers.ShowError($"This task is already {status.ToLower()}.");
+                    return;
+                }
+
+                if (UIHelpers.ShowConfirm($"Are you sure you want to mark '{taskTitle}' as complete?", "Confirm Completion"))
+                {
+                    if (_studentService.CompleteTask(taskId, _studentId))
                     {
-                        task.CompleteTask(_headId); // The head marks it complete
-                        new TaskRepository().UpdateTask(task);
-                        UIHelpers.ShowInfo("Task marked as completed");
+                        UIHelpers.ShowInfo("Task marked as complete successfully!");
                         LoadTasks();
                     }
                 }
             }
             catch (Exception ex)
             {
-                UIHelpers.ShowError($"Failed to complete task: {ex.Message}");
-            }
-        }
-
-        private void DeleteButton_Click(object sender, EventArgs e)
-        {
-            if (_tasksGrid.SelectedRows.Count == 0)
-            {
-                UIHelpers.ShowError("Please select a task");
-                return;
-            }
-
-            try
-            {
-                int taskId = (int)_tasksGrid.SelectedRows[0].Cells[0].Value;
-                string taskTitle = (string)_tasksGrid.SelectedRows[0].Cells[1].Value;
-
-                if (UIHelpers.ShowConfirm($"Delete '{taskTitle}'?", "Confirm Deletion"))
-                {
-                    new TaskRepository().CancelTask(taskId);
-                    UIHelpers.ShowInfo("Task deleted successfully");
-                    LoadTasks();
-                }
-            }
-            catch (Exception ex)
-            {
-                UIHelpers.ShowError($"Failed to delete task: {ex.Message}");
+                UIHelpers.ShowError($"Error: {ex.Message}");
             }
         }
     }

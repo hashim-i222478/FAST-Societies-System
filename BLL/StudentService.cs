@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FASTSocietiesSystem.Models;
 using FASTSocietiesSystem.DAL;
+using Task = FASTSocietiesSystem.Models.Task;
 
 namespace FASTSocietiesSystem.BLL
 {
@@ -14,6 +15,7 @@ namespace FASTSocietiesSystem.BLL
         private readonly MembershipRepository _membershipRepository;
         private readonly EventRepository _eventRepository;
         private readonly EventRegistrationRepository _eventRegistrationRepository;
+        private readonly TaskRepository _taskRepository;
 
         public StudentService()
         {
@@ -21,6 +23,7 @@ namespace FASTSocietiesSystem.BLL
             _membershipRepository = new MembershipRepository();
             _eventRepository = new EventRepository();
             _eventRegistrationRepository = new EventRegistrationRepository();
+            _taskRepository = new TaskRepository();
         }
 
         /// <summary>
@@ -208,6 +211,32 @@ namespace FASTSocietiesSystem.BLL
                 throw new ResourceNotFoundException("Event not found");
 
             return eventObj;
+        }
+
+        /// <summary>
+        /// Retrieves tasks for all societies the student is an active member of
+        /// </summary>
+        public List<Task> GetMyTasks(int studentId)
+        {
+            return _taskRepository.GetTasksForStudent(studentId);
+        }
+
+        /// <summary>
+        /// Marks a task as completed by the student
+        /// </summary>
+        public bool CompleteTask(int taskId, int studentId)
+        {
+            Task task = _taskRepository.GetTaskById(taskId);
+            if (task == null)
+                throw new ResourceNotFoundException("Task not found");
+
+            if (!_membershipRepository.IsMember(studentId, task.SocietyId))
+                throw new UnauthorizedOperationException("You are not a member of the society this task belongs to.");
+
+            if (task.Status == "Completed" || task.Status == "Cancelled")
+                throw new ValidationException("This task cannot be completed in its current state.");
+
+            return _taskRepository.CompleteTask(taskId, studentId);
         }
     }
 }

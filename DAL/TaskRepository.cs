@@ -21,14 +21,15 @@ namespace FASTSocietiesSystem.DAL
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string query = @"INSERT INTO [Task] (SocietyId, CompletedBy, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate)
-                                   VALUES (@SocietyId, @CompletedBy, @TaskTitle, @Description, @DueDate, @AssignedDate, @Status, @Priority, @CreatedDate, @UpdatedDate);
+                    string query = @"INSERT INTO [Task] (SocietyId, CompletedBy, AssignedTo, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate)
+                                   VALUES (@SocietyId, @CompletedBy, @AssignedTo, @TaskTitle, @Description, @DueDate, @AssignedDate, @Status, @Priority, @CreatedDate, @UpdatedDate);
                                    SELECT SCOPE_IDENTITY();";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@SocietyId", task.SocietyId);
                         cmd.Parameters.AddWithValue("@CompletedBy", task.CompletedBy ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@AssignedTo", task.AssignedTo ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@TaskTitle", task.TaskTitle);
                         cmd.Parameters.AddWithValue("@Description", task.Description ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@DueDate", task.DueDate);
@@ -59,7 +60,7 @@ namespace FASTSocietiesSystem.DAL
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string query = @"SELECT TaskId, SocietyId, CompletedBy, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate
+                    string query = @"SELECT TaskId, SocietyId, CompletedBy, AssignedTo, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate
                                    FROM [Task] WHERE TaskId = @TaskId";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -95,7 +96,7 @@ namespace FASTSocietiesSystem.DAL
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string query = @"SELECT TaskId, SocietyId, CompletedBy, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate
+                    string query = @"SELECT TaskId, SocietyId, CompletedBy, AssignedTo, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate
                                    FROM [Task] WHERE SocietyId = @SocietyId ORDER BY DueDate";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -131,7 +132,7 @@ namespace FASTSocietiesSystem.DAL
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string query = @"SELECT TaskId, SocietyId, CompletedBy, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate
+                    string query = @"SELECT TaskId, SocietyId, CompletedBy, AssignedTo, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate
                                    FROM [Task] WHERE SocietyId = @SocietyId AND Status != 'Completed' AND Status != 'Cancelled' ORDER BY Priority DESC, DueDate";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -157,6 +158,52 @@ namespace FASTSocietiesSystem.DAL
         }
 
         /// <summary>
+        /// Retrieves all tasks for societies a student is an active member of
+        /// </summary>
+        public List<Task> GetTasksForStudent(int studentId)
+        {
+            List<Task> tasks = new List<Task>();
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"SELECT t.TaskId, t.SocietyId, t.CompletedBy, t.AssignedTo, t.TaskTitle, t.Description, 
+                                            t.DueDate, t.AssignedDate, t.Status, t.Priority, t.CreatedDate, t.UpdatedDate
+                                     FROM [Task] t
+                                     INNER JOIN [Membership] m ON t.SocietyId = m.SocietyId
+                                     WHERE m.StudentId = @StudentId AND (m.Status = 'Active' OR m.Status = 'Approved') 
+                                     AND (t.AssignedTo IS NULL OR t.AssignedTo = @StudentId)
+                                     ORDER BY CASE 
+                                        WHEN t.Priority = 'Critical' THEN 1
+                                        WHEN t.Priority = 'High' THEN 2
+                                        WHEN t.Priority = 'Medium' THEN 3
+                                        WHEN t.Priority = 'Low' THEN 4
+                                        ELSE 5 END ASC, t.DueDate ASC";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@StudentId", studentId);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                tasks.Add(MapReaderToTask(reader));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetTasksForStudent Error: {ex.Message}");
+                throw;
+            }
+
+            return tasks;
+        }
+
+        /// <summary>
         /// Updates task information
         /// </summary>
         public bool UpdateTask(Task task)
@@ -167,7 +214,7 @@ namespace FASTSocietiesSystem.DAL
                 {
                     conn.Open();
                     string query = @"UPDATE [Task] SET TaskTitle = @TaskTitle, Description = @Description, DueDate = @DueDate, 
-                                   Status = @Status, Priority = @Priority, CompletedBy = @CompletedBy, UpdatedDate = @UpdatedDate WHERE TaskId = @TaskId";
+                                   Status = @Status, Priority = @Priority, CompletedBy = @CompletedBy, AssignedTo = @AssignedTo, UpdatedDate = @UpdatedDate WHERE TaskId = @TaskId";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -178,6 +225,7 @@ namespace FASTSocietiesSystem.DAL
                         cmd.Parameters.AddWithValue("@Status", task.Status);
                         cmd.Parameters.AddWithValue("@Priority", task.Priority);
                         cmd.Parameters.AddWithValue("@CompletedBy", task.CompletedBy ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@AssignedTo", task.AssignedTo ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
 
                         return cmd.ExecuteNonQuery() > 0;
@@ -258,14 +306,15 @@ namespace FASTSocietiesSystem.DAL
                 TaskId = reader.GetInt32(0),
                 SocietyId = reader.GetInt32(1),
                 CompletedBy = reader.IsDBNull(2) ? null : (int?)reader.GetInt32(2),
-                TaskTitle = reader.GetString(3),
-                Description = reader.IsDBNull(4) ? null : reader.GetString(4),
-                DueDate = reader.GetDateTime(5),
-                AssignedDate = reader.GetDateTime(6),
-                Status = reader.GetString(7),
-                Priority = reader.GetString(8),
-                CreatedDate = reader.GetDateTime(9),
-                UpdatedDate = reader.GetDateTime(10)
+                AssignedTo = reader.IsDBNull(3) ? null : (int?)reader.GetInt32(3),
+                TaskTitle = reader.GetString(4),
+                Description = reader.IsDBNull(5) ? null : reader.GetString(5),
+                DueDate = reader.GetDateTime(6),
+                AssignedDate = reader.GetDateTime(7),
+                Status = reader.GetString(8),
+                Priority = reader.GetString(9),
+                CreatedDate = reader.GetDateTime(10),
+                UpdatedDate = reader.GetDateTime(11)
             };
         }
     }

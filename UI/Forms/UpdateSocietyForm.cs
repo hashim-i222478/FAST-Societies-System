@@ -48,7 +48,7 @@ namespace FASTSocietiesSystem.UI.Forms
             mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Title
             mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Name
             mainGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Description
-            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Buttons
+            mainGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 100)); // Buttons
             this.Controls.Add(mainGrid);
 
             // Title
@@ -87,11 +87,11 @@ namespace FASTSocietiesSystem.UI.Forms
                 Padding = new Padding(0, 10, 0, 0)
             };
 
-            Button saveBtn = new Button { Text = "SAVE CHANGES", Width = 150 };
+            Button saveBtn = new Button { Text = "SAVE CHANGES", Width = 150, Height = 45 };
             ThemeManager.StyleButton(saveBtn);
             saveBtn.Click += SaveButton_Click;
 
-            Button cancelBtn = new Button { Text = "CANCEL", Width = 120, Margin = new Padding(0, 0, 10, 0) };
+            Button cancelBtn = new Button { Text = "CANCEL", Width = 120, Height = 45, Margin = new Padding(0, 0, 10, 0) };
             ThemeManager.StyleButton(cancelBtn, false);
             cancelBtn.Click += (s, e) => this.Close();
 

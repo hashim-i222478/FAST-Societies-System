@@ -1,10 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
@@ -16,7 +16,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new Task();
+                var instance = new FASTSocietiesSystem.Models.Task();
                 instance.StartTask();
                 Assert.IsTrue(true);
             }
@@ -31,7 +31,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new Task();
+                var instance = new FASTSocietiesSystem.Models.Task();
                 instance.CompleteTask(1);
                 Assert.IsTrue(true);
             }
@@ -46,7 +46,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new Task();
+                var instance = new FASTSocietiesSystem.Models.Task();
                 instance.IsOverdue();
                 Assert.IsTrue(true);
             }
@@ -61,7 +61,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new Task();
+                var instance = new FASTSocietiesSystem.Models.Task();
                 instance.UpdateOverdueStatus();
                 Assert.IsTrue(true);
             }

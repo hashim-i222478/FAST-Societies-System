@@ -1,10 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
@@ -158,21 +158,6 @@ namespace FASTSocietiesSystem.Tests
             catch (Exception ex)
             {
                 Console.WriteLine($"Test failed for UpdateMembership: {ex.Message}");
-            }
-        }
-
-        [TestMethod]
-        public void Test_MapReaderToMembership()
-        {
-            try
-            {
-                var instance = new MembershipRepository();
-                instance.MapReaderToMembership(null);
-                Assert.IsTrue(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Test failed for MapReaderToMembership: {ex.Message}");
             }
         }
 

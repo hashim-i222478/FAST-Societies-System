@@ -1,10 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
@@ -16,8 +16,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.Login(null);
+                AuthenticationManager.Instance.Login(null);
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -31,8 +30,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.Logout();
+                AuthenticationManager.Instance.Logout();
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -46,8 +44,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.HasRole("test_data");
+                AuthenticationManager.Instance.HasRole("test_data");
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -61,8 +58,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.EnsureAuthenticated();
+                AuthenticationManager.Instance.EnsureAuthenticated();
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -76,8 +72,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.EnsureRole(null);
+                AuthenticationManager.Instance.EnsureRole("test_data");
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -91,8 +86,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.EnsureStudent();
+                AuthenticationManager.Instance.EnsureStudent();
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -106,8 +100,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.EnsureSocietyHead();
+                AuthenticationManager.Instance.EnsureSocietyHead();
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -121,8 +114,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.EnsureAdmin();
+                AuthenticationManager.Instance.EnsureAdmin();
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -136,8 +128,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                var instance = new AuthenticationManager();
-                instance.GetCurrentUserName();
+                AuthenticationManager.Instance.GetCurrentUserName();
                 Assert.IsTrue(true);
             }
             catch (Exception ex)

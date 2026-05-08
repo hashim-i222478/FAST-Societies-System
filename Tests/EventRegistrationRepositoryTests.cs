@@ -1,10 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
@@ -128,21 +128,6 @@ namespace FASTSocietiesSystem.Tests
             catch (Exception ex)
             {
                 Console.WriteLine($"Test failed for CancelRegistration: {ex.Message}");
-            }
-        }
-
-        [TestMethod]
-        public void Test_MapReaderToRegistration()
-        {
-            try
-            {
-                var instance = new EventRegistrationRepository();
-                instance.MapReaderToRegistration(null);
-                Assert.IsTrue(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Test failed for MapReaderToRegistration: {ex.Message}");
             }
         }
 

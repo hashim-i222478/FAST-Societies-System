@@ -1,10 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
@@ -44,7 +44,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                DatabaseConnection.ExecuteNonQuery("test_data", "test_data", new object());
+                DatabaseConnection.ExecuteNonQuery("test_data", new Dictionary<string, object>());
                 Assert.IsTrue(true);
             }
             catch (Exception ex)
@@ -58,7 +58,7 @@ namespace FASTSocietiesSystem.Tests
         {
             try
             {
-                DatabaseConnection.ExecuteScalar("test_data", "test_data", new object());
+                DatabaseConnection.ExecuteScalar("test_data", new Dictionary<string, object>());
                 Assert.IsTrue(true);
             }
             catch (Exception ex)

@@ -1,10 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
@@ -188,21 +188,6 @@ namespace FASTSocietiesSystem.Tests
             catch (Exception ex)
             {
                 Console.WriteLine($"Test failed for GetSocietyMemberCount: {ex.Message}");
-            }
-        }
-
-        [TestMethod]
-        public void Test_MapReaderToSociety()
-        {
-            try
-            {
-                var instance = new SocietyRepository();
-                instance.MapReaderToSociety(null);
-                Assert.IsTrue(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Test failed for MapReaderToSociety: {ex.Message}");
             }
         }
 

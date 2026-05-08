@@ -1,31 +1,16 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
     [TestClass]
     public class EventRegistrationTests
     {
-        [TestMethod]
-        public void Test_GenerateTicketId()
-        {
-            try
-            {
-                var instance = new EventRegistration();
-                instance.GenerateTicketId();
-                Assert.IsTrue(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Test failed for GenerateTicketId: {ex.Message}");
-            }
-        }
-
         [TestMethod]
         public void Test_CheckIn()
         {

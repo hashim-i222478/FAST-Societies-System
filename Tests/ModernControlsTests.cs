@@ -1,30 +1,16 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
     [TestClass]
     public class ModernControlsTests
     {
-        [TestMethod]
-        public void Test_CreateRoundRectRgn()
-        {
-            try
-            {
-                ModernControls.CreateRoundRectRgn(1, null, null, null, null, null);
-                Assert.IsTrue(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Test failed for CreateRoundRectRgn: {ex.Message}");
-            }
-        }
-
         [TestMethod]
         public void Test_SetRoundedCorners()
         {

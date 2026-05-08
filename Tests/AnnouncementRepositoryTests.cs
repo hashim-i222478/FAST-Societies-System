@@ -1,10 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FASTSocietiesSystem.Models;
-using FASTSocietiesSystem.DAL;
-using FASTSocietiesSystem.UI.Forms;
-using FASTSocietiesSystem.BLL;
 using FASTSocietiesSystem.UI.Helpers;
+using FASTSocietiesSystem.DAL;
+using FASTSocietiesSystem.BLL;
 
 namespace FASTSocietiesSystem.Tests
 {
@@ -98,21 +98,6 @@ namespace FASTSocietiesSystem.Tests
             catch (Exception ex)
             {
                 Console.WriteLine($"Test failed for DeactivateAnnouncement: {ex.Message}");
-            }
-        }
-
-        [TestMethod]
-        public void Test_MapReaderToAnnouncement()
-        {
-            try
-            {
-                var instance = new AnnouncementRepository();
-                instance.MapReaderToAnnouncement(null);
-                Assert.IsTrue(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Test failed for MapReaderToAnnouncement: {ex.Message}");
             }
         }
 

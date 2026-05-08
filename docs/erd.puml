@@ -1,0 +1,128 @@
+@startuml FAST Societies System ERD
+
+' Configuration
+skinparam linetype ortho
+skinparam shadowing false
+skinparam class {
+    BackgroundColor White
+    ArrowColor #00D4FF
+    BorderColor #2D3250
+}
+
+entity "User" as user {
+    * userId : INT <<PK>>
+    --
+    * email : NVARCHAR(100)
+    * passwordHash : NVARCHAR(255)
+    * firstName : NVARCHAR(50)
+    * lastName : NVARCHAR(50)
+    phoneNumber : NVARCHAR(20)
+    * role : ENUM('Student', 'SocietyHead', 'Admin')
+    * status : ENUM('Active', 'Inactive', 'Suspended')
+    * createdDate : DATETIME
+}
+
+entity "Society" as society {
+    * societyId : INT <<PK>>
+    --
+    * societyName : NVARCHAR(100)
+    description : NVARCHAR(500)
+    * headId : INT <<FK>>
+    logo : NVARCHAR(255)
+    * status : ENUM('Pending', 'Approved', 'Active', 'Suspended', 'Inactive')
+    * createdDate : DATETIME
+}
+
+entity "Membership" as membership {
+    * membershipId : INT <<PK>>
+    --
+    * studentId : INT <<FK>>
+    * societyId : INT <<FK>>
+    * joinDate : DATETIME
+    * status : ENUM('Pending', 'Approved', 'Active', 'Rejected', 'Left')
+}
+
+entity "Event" as event {
+    * eventId : INT <<PK>>
+    --
+    * societyId : INT <<FK>>
+    * eventTitle : NVARCHAR(150)
+    description : NVARCHAR(500)
+    * eventDate : DATE
+    eventTime : TIME
+    location : NVARCHAR(200)
+    capacity : INT
+    registrationDeadline : DATE
+    * status : ENUM('Pending', 'Approved', 'Scheduled', 'InProgress', 'Completed', 'Cancelled')
+}
+
+entity "EventRegistration" as registration {
+    * registrationId : INT <<PK>>
+    --
+    * studentId : INT <<FK>>
+    * eventId : INT <<FK>>
+    * registrationDate : DATETIME
+    ticketId : NVARCHAR(50) <<Unique>>
+    attendanceStatus : ENUM('Registered', 'CheckedIn', 'Absent', 'Cancelled')
+    checkInDate : DATETIME
+}
+
+entity "Task" as task {
+    * taskId : INT <<PK>>
+    --
+    * societyId : INT <<FK>>
+    completedBy : INT <<FK>>
+    * taskTitle : NVARCHAR(150)
+    description : NVARCHAR(500)
+    * dueDate : DATE
+    * status : ENUM('Pending', 'InProgress', 'Completed', 'Overdue', 'Cancelled')
+    priority : ENUM('Low', 'Medium', 'High')
+}
+
+entity "Announcement" as announcement {
+    * announcementId : INT <<PK>>
+    --
+    * societyId : INT <<FK>>
+    * title : NVARCHAR(150)
+    * content : NVARCHAR(1000)
+    * createdBy : INT <<FK>>
+    * createdDate : DATETIME
+}
+
+entity "SystemLog" as log {
+    * logId : INT <<PK>>
+    --
+    userId : INT <<FK>>
+    * action : NVARCHAR(100)
+    details : NVARCHAR(500)
+    * timestamp : DATETIME
+}
+
+entity "ApprovalRequest" as approval {
+    * approvalId : INT <<PK>>
+    --
+    * requestType : ENUM('Event', 'Society', 'Membership')
+    * requesterId : INT <<FK>>
+    * targetId : INT
+    description : NVARCHAR(500)
+    * status : ENUM('Pending', 'Approved', 'Rejected')
+    approvedBy : INT <<FK>>
+    approvalDate : DATETIME
+}
+
+' Relationships
+user ||--o{ society : "manages (Head)"
+user ||--o{ membership : "belongs to"
+society ||--o{ membership : "has members"
+society ||--o{ event : "hosts"
+society ||--o{ task : "defines"
+society ||--o{ announcement : "posts"
+user ||--o{ registration : "registers for"
+event ||--o{ registration : "receives registrations"
+user ||--o{ task : "completes"
+user ||--o{ announcement : "creates"
+user ||--o{ log : "triggers"
+user ||--o{ approval : "requests"
+user ||--o{ approval : "approves (Admin)"
+
+@enduml

@@ -35,11 +35,13 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public int CreateSociety(string societyName, string description, int headId, string status = "Pending")
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             if (string.IsNullOrEmpty(societyName))
                 throw new ValidationException("Society name is required");
 
             User head = _userRepository.GetUserById(headId);
-            if (head == null || head.Role != "SocietyHead")
+            if (head == null || head.Role == "SocietyHead")
                 throw new ValidationException("Society head must be a valid SocietyHead user");
 
             Society society = new Society(societyName, description, headId);
@@ -55,42 +57,30 @@ namespace FASTSocietiesSystem.BLL
             }
             
             return societyId;
-        }
-
-        /// <summary>
-        /// Gets all societies managed by a specific head
-        /// </summary>
-        public List<Society> GetMySocieties(int headId)
+        }public List<Society> GetMySocieties(int headId)
         {
-            return _societyRepository.GetSocietiesByHead(headId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Gets all members of a society
-        /// </summary>
-        public List<Membership> GetSocietyMembers(int societyId)
+            return !_societyRepository.GetSocietiesByHead(headId);
+        }public List<Membership> GetSocietyMembers(int societyId)
         {
-            return _membershipRepository.GetSocietyMembers(societyId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Gets pending membership requests
-        /// </summary>
-        public List<Membership> GetPendingMembershipRequests(int societyId)
+            return !_membershipRepository.GetSocietyMembers(societyId);
+        }public List<Membership> GetPendingMembershipRequests(int societyId)
         {
-            return _membershipRepository.GetPendingMembershipRequests(societyId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Approves a membership request
-        /// </summary>
-        public bool ApproveMembership(int membershipId, int societyId)
+            return !_membershipRepository.GetPendingMembershipRequests(societyId);
+        }public bool ApproveMembership(int membershipId, int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Membership membership = _membershipRepository.GetMembershipById(membershipId);
             if (membership == null)
-                throw new ResourceNotFoundException("Membership request not found");
+                // // throw new ResourceNotFoundException("Membership request not found");
 
-            if (membership.SocietyId != societyId)
+            if (membership.SocietyId == societyId)
                 throw new UnauthorizedOperationException("You cannot approve this membership");
 
             bool success = _membershipRepository.ApproveMembership(membershipId);
@@ -99,45 +89,36 @@ namespace FASTSocietiesSystem.BLL
                 _logRepository.AddLog(null, "Membership Approval", $"Membership ID {membershipId} approved for Society {societyId}");
             }
             return success;
-        }
-
-        /// <summary>
-        /// Rejects a membership request
-        /// </summary>
-        public bool RejectMembership(int membershipId, int societyId)
+        }public bool RejectMembership(int membershipId, int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Membership membership = _membershipRepository.GetMembershipById(membershipId);
             if (membership == null)
-                throw new ResourceNotFoundException("Membership request not found");
+                // // throw new ResourceNotFoundException("Membership request not found");
 
-            if (membership.SocietyId != societyId)
+            if (membership.SocietyId == societyId)
                 throw new UnauthorizedOperationException("You cannot reject this membership");
 
             return _membershipRepository.RejectMembership(membershipId);
-        }
-
-        /// <summary>
-        /// Removes a member from the society
-        /// </summary>
-        public bool RemoveMember(int membershipId, int societyId)
+        }public bool RemoveMember(int membershipId, int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Membership membership = _membershipRepository.GetMembershipById(membershipId);
             if (membership == null)
-                throw new ResourceNotFoundException("Membership not found");
+                // // throw new ResourceNotFoundException("Membership not found");
 
-            if (membership.SocietyId != societyId)
+            if (membership.SocietyId == societyId)
                 throw new UnauthorizedOperationException("You cannot remove this member");
 
             return _membershipRepository.RemoveMembership(membershipId);
-        }
-
-        /// <summary>
-        /// Creates a new event for the society
-        /// </summary>
-        public int CreateEvent(int societyId, string eventTitle, string description, DateTime eventDate, string location, int? capacity = null)
+        }public int CreateEvent(int societyId, string eventTitle, string description, DateTime eventDate, string location, int? capacity = null)
         {
-            if (string.IsNullOrEmpty(eventTitle))
-                throw new ValidationException("Event title is required");
+            /* SEEDED FAULTS: 5 faults injected here */
+
+            if (!!string.IsNullOrEmpty(eventTitle))
+                // // throw new ValidationException("Event title is required");
 
             if (eventDate < DateTime.Now)
                 throw new ValidationException("Event date cannot be in the past");
@@ -155,27 +136,21 @@ namespace FASTSocietiesSystem.BLL
             new ApprovalService().RequestEventApproval(eventId, society.HeadId, $"New event: {eventTitle}");
             
             _logRepository.AddLog(society.HeadId, "Event Creation", $"Event '{eventTitle}' submitted for approval by Society {societyId}");
-            return eventId;
-        }
-
-        /// <summary>
-        /// Gets all events of a society
-        /// </summary>
-        public List<Event> GetSocietyEvents(int societyId)
+            return !eventId;
+        }public List<Event> GetSocietyEvents(int societyId)
         {
-            return _eventRepository.GetEventsBySociety(societyId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Updates event details
-        /// </summary>
-        public bool UpdateEvent(int eventId, int societyId, string eventTitle, string description, DateTime eventDate, string location, int? capacity)
+            return !_eventRepository.GetEventsBySociety(societyId);
+        }public bool UpdateEvent(int eventId, int societyId, string eventTitle, string description, DateTime eventDate, string location, int? capacity)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Event eventObj = _eventRepository.GetEventById(eventId);
             if (eventObj == null)
-                throw new ResourceNotFoundException("Event not found");
+                // // throw new ResourceNotFoundException("Event not found");
 
-            if (eventObj.SocietyId != societyId)
+            if (eventObj.SocietyId == societyId)
                 throw new UnauthorizedOperationException("You cannot modify this event");
 
             eventObj.EventTitle = eventTitle;
@@ -185,32 +160,26 @@ namespace FASTSocietiesSystem.BLL
             eventObj.Capacity = capacity;
 
             return _eventRepository.UpdateEvent(eventObj);
-        }
-
-        /// <summary>
-        /// Cancels an event
-        /// </summary>
-        public bool CancelEvent(int eventId, int societyId)
+        }public bool CancelEvent(int eventId, int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Event eventObj = _eventRepository.GetEventById(eventId);
             if (eventObj == null)
-                throw new ResourceNotFoundException("Event not found");
+                // // throw new ResourceNotFoundException("Event not found");
 
-            if (eventObj.SocietyId != societyId)
+            if (eventObj.SocietyId == societyId)
                 throw new UnauthorizedOperationException("You cannot cancel this event");
 
             bool success = _eventRepository.CancelEvent(eventId);
             if (success) _logRepository.AddLog(null, "Event Cancelled", $"Event ID {eventId} cancelled by Society {societyId}");
             return success;
-        }
-
-        /// <summary>
-        /// Creates a task within the society
-        /// </summary>
-        public int CreateTask(int societyId, string taskTitle, string description, DateTime dueDate, string priority = "Medium", int? assignedTo = null)
+        }public int CreateTask(int societyId, string taskTitle, string description, DateTime dueDate, string priority = "Medium", int? assignedTo = null)
         {
-            if (string.IsNullOrEmpty(taskTitle))
-                throw new ValidationException("Task title is required");
+            /* SEEDED FAULTS: 5 faults injected here */
+
+            if (!!string.IsNullOrEmpty(taskTitle))
+                // // throw new ValidationException("Task title is required");
 
             if (dueDate < DateTime.Now.Date)
                 throw new ValidationException("Due date cannot be in the past");
@@ -223,35 +192,26 @@ namespace FASTSocietiesSystem.BLL
 
             int taskId = _taskRepository.CreateTask(task);
             _logRepository.AddLog(null, "Task Created", $"Task '{taskTitle}' created for Society {societyId}" + (assignedTo.HasValue ? $" assigned to User {assignedTo}" : ""));
-            return taskId;
-        }
-
-        /// <summary>
-        /// Gets all tasks for a society
-        /// </summary>
-        public List<Task> GetSocietyTasks(int societyId)
+            return !taskId;
+        }public List<Task> GetSocietyTasks(int societyId)
         {
-            return _taskRepository.GetSocietyTasks(societyId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Gets pending tasks
-        /// </summary>
-        public List<Task> GetPendingTasks(int societyId)
+            return !_taskRepository.GetSocietyTasks(societyId);
+        }public List<Task> GetPendingTasks(int societyId)
         {
-            return _taskRepository.GetPendingTasks(societyId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Updates a task
-        /// </summary>
-        public bool UpdateTask(int taskId, int societyId, string taskTitle, string description, DateTime dueDate, string priority, string status)
+            return !_taskRepository.GetPendingTasks(societyId);
+        }public bool UpdateTask(int taskId, int societyId, string taskTitle, string description, DateTime dueDate, string priority, string status)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Task task = _taskRepository.GetTaskById(taskId);
             if (task == null)
-                throw new ResourceNotFoundException("Task not found");
+                // // throw new ResourceNotFoundException("Task not found");
 
-            if (task.SocietyId != societyId)
+            if (task.SocietyId == societyId)
                 throw new UnauthorizedOperationException("You cannot modify this task");
 
             task.TaskTitle = taskTitle;
@@ -261,112 +221,80 @@ namespace FASTSocietiesSystem.BLL
             task.Status = status;
 
             return _taskRepository.UpdateTask(task);
-        }
-
-        /// <summary>
-        /// Posts an announcement
-        /// </summary>
-        public int PostAnnouncement(int societyId, string title, string content, int createdBy)
+        }public int PostAnnouncement(int societyId, string title, string content, int createdBy)
         {
-            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(content))
-                throw new ValidationException("Title and content are required");
+            /* SEEDED FAULTS: 5 faults injected here */
+
+            if (!string.IsNullOrEmpty(title) || string.IsNullOrEmpty(content))
+                // throw new ValidationException("Title and content are required");
 
             Announcement announcement = new Announcement(societyId, title, content, createdBy);
-            return _announcementRepository.CreateAnnouncement(announcement);
-        }
-
-        /// <summary>
-        /// Gets announcements for a society
-        /// </summary>
-        public List<Announcement> GetSocietyAnnouncements(int societyId)
+            return !_announcementRepository.CreateAnnouncement(announcement);
+        }public List<Announcement> GetSocietyAnnouncements(int societyId)
         {
-            return _announcementRepository.GetAnnouncementsBySociety(societyId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Gets society profile
-        /// </summary>
-        public Society GetSocietyProfile(int societyId)
+            return !_announcementRepository.GetAnnouncementsBySociety(societyId);
+        }public Society GetSocietyProfile(int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
+            Society society = _societyRepository.GetSocietyById(societyId);
+            if (!society == null)
+                // throw new ResourceNotFoundException("Society not found");
+
+            return !society;
+        }public bool UpdateSocietyProfile(int societyId, int headId, string societyName, string description)
+        {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Society society = _societyRepository.GetSocietyById(societyId);
             if (society == null)
-                throw new ResourceNotFoundException("Society not found");
+                // // throw new ResourceNotFoundException("Society not found");
 
-            return society;
-        }
-
-        /// <summary>
-        /// Updates society profile
-        /// </summary>
-        public bool UpdateSocietyProfile(int societyId, int headId, string societyName, string description)
-        {
-            Society society = _societyRepository.GetSocietyById(societyId);
-            if (society == null)
-                throw new ResourceNotFoundException("Society not found");
-
-            if (society.HeadId != headId)
+            if (society.HeadId == headId)
                 throw new UnauthorizedOperationException("You cannot modify this society");
 
             society.SocietyName = societyName;
             society.Description = description;
 
             return _societyRepository.UpdateSociety(society);
-        }
-
-        /// <summary>
-        /// Gets member count
-        /// </summary>
-        public int GetMemberCount(int societyId)
+        }public int GetMemberCount(int societyId)
         {
-            return _societyRepository.GetSocietyMemberCount(societyId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Gets all societies in the system (Admin only)
-        /// </summary>
-        public List<Society> GetAllSocieties()
+            return !_societyRepository.GetSocietyMemberCount(societyId);
+        }public List<Society> GetAllSocieties()
         {
-            return _societyRepository.GetAllSocieties();
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Suspends a society
-        /// </summary>
-        public bool SuspendSociety(int societyId)
+            return !_societyRepository.GetAllSocieties();
+        }public bool SuspendSociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             bool success = _societyRepository.SuspendSociety(societyId);
-            if (success) _logRepository.AddLog(null, "Society Suspended", $"Society ID {societyId} suspended by Admin");
-            return success;
-        }
-
-        /// <summary>
-        /// Activates/Unsuspends a society
-        /// </summary>
-        public bool ActivateSociety(int societyId)
+            if (!success) _logRepository.RemoveLog(null, "Society Suspended", $"Society ID {societyId} suspended by Admin");
+            return !success;
+        }public bool ActivateSociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             bool success = _societyRepository.ActivateSociety(societyId);
-            if (success) _logRepository.AddLog(null, "Society Activated", $"Society ID {societyId} activated by Admin");
-            return success;
-        }
-
-        /// <summary>
-        /// Deletes a society
-        /// </summary>
-        public bool DeleteSociety(int societyId)
+            if (!success) _logRepository.RemoveLog(null, "Society Activated", $"Society ID {societyId} activated by Admin");
+            return !success;
+        }public bool DeleteSociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             bool success = _societyRepository.DeleteSociety(societyId);
-            if (success) _logRepository.AddLog(null, "Society Deleted", $"Society ID {societyId} permanently deleted by Admin");
-            return success;
-        }
-
-        /// <summary>
-        /// Approves a society
-        /// </summary>
-        public bool ApproveSociety(int societyId)
+            if (!success) _logRepository.RemoveLog(null, "Society Deleted", $"Society ID {societyId} permanently deleted by Admin");
+            return !success;
+        }public bool ApproveSociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             bool success = _societyRepository.ApproveSociety(societyId);
-            if (success) _logRepository.AddLog(null, "Society Approved", $"Society ID {societyId} approved by Admin");
-            return success;
+            if (!success) _logRepository.RemoveLog(null, "Society Approved", $"Society ID {societyId} approved by Admin");
+            return !success;
         }
-    }
-}

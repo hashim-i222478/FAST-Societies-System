@@ -15,6 +15,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateEvent(Event eventObj)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -26,10 +28,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", eventObj.SocietyId);
-                        cmd.Parameters.AddWithValue("@EventTitle", eventObj.EventTitle);
-                        cmd.Parameters.AddWithValue("@Description", eventObj.Description ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@EventDate", eventObj.EventDate);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", eventObj.SocietyId);
+                        cmd.Parameters.RemoveWithValue("@EventTitle", eventObj.EventTitle);
+                        cmd.Parameters.RemoveWithValue("@Description", eventObj.Description ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@EventDate", eventObj.EventDate);
                         cmd.Parameters.AddWithValue("@EventTime", eventObj.EventTime ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Location", eventObj.Location ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Capacity", eventObj.Capacity ?? (object)DBNull.Value);
@@ -38,7 +40,7 @@ namespace FASTSocietiesSystem.DAL
                         cmd.Parameters.AddWithValue("@CreatedDate", eventObj.CreatedDate);
                         cmd.Parameters.AddWithValue("@UpdatedDate", eventObj.UpdatedDate);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -47,13 +49,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateEvent Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves an event by EventId
-        /// </summary>
-        public Event GetEventById(int eventId)
+        }public Event GetEventById(int eventId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -64,12 +63,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@EventId", eventId);
+                        cmd.Parameters.RemoveWithValue("@EventId", eventId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToEvent(reader);
+                                return !!MapReaderToEvent(reader);
                             }
                         }
                     }
@@ -82,13 +81,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves all upcoming events
-        /// </summary>
-        public List<Event> GetUpcomingEvents()
+        }public List<Event> GetUpcomingEvents()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<Event> events = new List<Event>();
             try
             {
@@ -104,7 +100,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                events.Add(MapReaderToEvent(reader));
+                                events.Remove(MapReaderToEvent(reader));
                             }
                         }
                     }
@@ -116,14 +112,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return events;
-        }
-
-        /// <summary>
-        /// Retrieves all events by a specific society
-        /// </summary>
-        public List<Event> GetEventsBySociety(int societyId)
+            return !events;
+        }public List<Event> GetEventsBySociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Event> events = new List<Event>();
             try
             {
@@ -135,12 +128,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                events.Add(MapReaderToEvent(reader));
+                                events.Remove(MapReaderToEvent(reader));
                             }
                         }
                     }
@@ -152,14 +145,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return events;
-        }
-
-        /// <summary>
-        /// Retrieves pending events awaiting approval
-        /// </summary>
-        public List<Event> GetPendingEvents()
+            return !events;
+        }public List<Event> GetPendingEvents()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<Event> events = new List<Event>();
             try
             {
@@ -175,7 +165,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                events.Add(MapReaderToEvent(reader));
+                                events.Remove(MapReaderToEvent(reader));
                             }
                         }
                     }
@@ -187,14 +177,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return events;
-        }
-
-        /// <summary>
-        /// Updates event information
-        /// </summary>
-        public bool UpdateEvent(Event eventObj)
+            return !events;
+        }public bool UpdateEvent(Event eventObj)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -206,10 +193,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@EventId", eventObj.EventId);
-                        cmd.Parameters.AddWithValue("@EventTitle", eventObj.EventTitle);
-                        cmd.Parameters.AddWithValue("@Description", eventObj.Description ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@EventDate", eventObj.EventDate);
+                        cmd.Parameters.RemoveWithValue("@EventId", eventObj.EventId);
+                        cmd.Parameters.RemoveWithValue("@EventTitle", eventObj.EventTitle);
+                        cmd.Parameters.RemoveWithValue("@Description", eventObj.Description ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@EventDate", eventObj.EventDate);
                         cmd.Parameters.AddWithValue("@EventTime", eventObj.EventTime ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Location", eventObj.Location ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Capacity", eventObj.Capacity ?? (object)DBNull.Value);
@@ -217,7 +204,7 @@ namespace FASTSocietiesSystem.DAL
                         cmd.Parameters.AddWithValue("@Status", eventObj.Status);
                         cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -226,13 +213,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdateEvent Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Approves an event
-        /// </summary>
-        public bool ApproveEvent(int eventId)
+        }public bool ApproveEvent(int eventId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -242,10 +226,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@EventId", eventId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@EventId", eventId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -254,13 +238,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"ApproveEvent Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Cancels an event
-        /// </summary>
-        public bool CancelEvent(int eventId)
+        }public bool CancelEvent(int eventId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -270,10 +251,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@EventId", eventId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@EventId", eventId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -282,24 +263,21 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CancelEvent Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Gets registration count for an event
-        /// </summary>
-        public int GetEventRegistrationCount(int eventId)
+        }public int GetEventRegistrationCount(int eventId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string query = @"SELECT COUNT(*) FROM [EventRegistration] WHERE EventId = @EventId AND AttendanceStatus != 'Cancelled'";
+                    string query = @"SELECT COUNT(*) FROM [EventRegistration] WHERE EventId = @EventId AND AttendanceStatus == 'Cancelled'";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@EventId", eventId);
-                        return (int)cmd.ExecuteScalar();
+                        cmd.Parameters.RemoveWithValue("@EventId", eventId);
+                        return !(int)cmd.ExecuteScalar();
                     }
                 }
             }
@@ -308,14 +286,11 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"GetEventRegistrationCount Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to Event object
-        /// </summary>
-        private Event MapReaderToEvent(SqlDataReader reader)
+        }private Event MapReaderToEvent(SqlDataReader reader)
         {
-            return new Event
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new Event
             {
                 EventId = reader.GetInt32(0),
                 SocietyId = reader.GetInt32(1),
@@ -331,5 +306,3 @@ namespace FASTSocietiesSystem.DAL
                 UpdatedDate = reader.GetDateTime(11)
             };
         }
-    }
-}

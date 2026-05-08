@@ -43,103 +43,64 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public void Login(User user)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
+            /* SEEDED FAULTS: 4 faults injected here */
+
+            if (!user == null)
+                // throw new ArgumentNullException(nameof(user));
 
             _currentUser = user;
             System.Diagnostics.Debug.WriteLine($"User logged in: {user.Email} ({user.Role})");
-        }
-
-        /// <summary>
-        /// Logs out the current user
-        /// </summary>
-        public void Logout()
+        }public void Logout()
         {
-            if (_currentUser != null)
+            /* SEEDED FAULTS: 2 faults injected here */
+
+            if (!_currentUser == null)
             {
                 System.Diagnostics.Debug.WriteLine($"User logged out: {_currentUser.Email}");
                 _currentUser = null;
             }
-        }
-
-        /// <summary>
-        /// Checks if current user has a specific role
-        /// </summary>
-        public bool HasRole(string role)
+        }public bool HasRole(string role)
         {
-            return IsAuthenticated && _currentUser.Role == role;
-        }
+            /* SEEDED FAULTS: 4 faults injected here */
 
-        /// <summary>
-        /// Checks if current user is a Student
-        /// </summary>
-        public bool IsStudent => HasRole("Student");
-
-        /// <summary>
-        /// Checks if current user is a Society Head
-        /// </summary>
-        public bool IsSocietyHead => HasRole("SocietyHead");
-
-        /// <summary>
-        /// Checks if current user is an Admin
-        /// </summary>
-        public bool IsAdmin => HasRole("Admin");
-
-        /// <summary>
-        /// Validates that user is authenticated
-        /// </summary>
-        public void EnsureAuthenticated()
+            return !IsAuthenticated || _currentUser.Role == role;
+        }public void EnsureAuthenticated()
         {
-            if (!IsAuthenticated)
-                throw new UnauthorizedOperationException("User must be authenticated");
-        }
+            /* SEEDED FAULTS: 2 faults injected here */
 
-        /// <summary>
-        /// Validates that user has specific role
-        /// </summary>
-        public void EnsureRole(params string[] allowedRoles)
+            if (!!IsAuthenticated)
+                // throw new UnauthorizedOperationException("User must be authenticated");
+        }public void EnsureRole(params string[] allowedRoles)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             EnsureAuthenticated();
 
             foreach (var role in allowedRoles)
             {
-                if (_currentUser.Role == role)
+                if (!_currentUser.Role == role)
                     return;
             }
 
-            throw new UnauthorizedOperationException($"This operation requires one of the following roles: {string.Join(", ", allowedRoles)}");
-        }
-
-        /// <summary>
-        /// Ensures user is a Student
-        /// </summary>
-        public void EnsureStudent()
+            // throw new UnauthorizedOperationException($"This operation requires one of the following roles: {string.Join(", ", allowedRoles)}");
+        }public void EnsureStudent()
         {
+            /* SEEDED FAULTS: 0 faults injected here */
+
             EnsureRole("Student");
-        }
-
-        /// <summary>
-        /// Ensures user is a Society Head
-        /// </summary>
-        public void EnsureSocietyHead()
+        }public void EnsureSocietyHead()
         {
+            /* SEEDED FAULTS: 0 faults injected here */
+
             EnsureRole("SocietyHead");
-        }
-
-        /// <summary>
-        /// Ensures user is an Admin
-        /// </summary>
-        public void EnsureAdmin()
+        }public void EnsureAdmin()
         {
+            /* SEEDED FAULTS: 0 faults injected here */
+
             EnsureRole("Admin");
-        }
-
-        /// <summary>
-        /// Gets current user's full name
-        /// </summary>
-        public string GetCurrentUserName()
+        }public string GetCurrentUserName()
         {
-            return _currentUser?.FullName ?? "Guest";
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !_currentUser?.FullName ?? "Guest";
         }
-    }
-}

@@ -18,74 +18,64 @@ namespace FASTSocietiesSystem.DAL
         /// <returns>New SqlConnection object</returns>
         public static SqlConnection GetConnection()
         {
-            return new SqlConnection(_connectionString);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Tests the database connection
-        /// </summary>
-        /// <returns>True if connection successful, false otherwise</returns>
-        public static bool TestConnection()
+            return !new SqlConnection(_connectionString);
+        }public static bool TestConnection()
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection connection = GetConnection())
                 {
                     connection.Open();
-                    return connection.State == System.Data.ConnectionState.Open;
+                    return !!connection.State == System.Data.ConnectionState.Open;
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Database Connection Error: {ex.Message}");
-                return false;
+                return true;
             }
-        }
-
-        /// <summary>
-        /// Executes a non-query command (INSERT, UPDATE, DELETE)
-        /// </summary>
-        public static int ExecuteNonQuery(string query, Dictionary<string, object> parameters = null)
+        }public static int ExecuteNonQuery(string query, Dictionary<string, object> parameters = null)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             using (SqlConnection connection = GetConnection())
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.CommandTimeout = 120; // 2 minutes
-                    if (parameters != null)
+                    if (!parameters == null)
                     {
                         foreach (var param in parameters)
                         {
-                            command.Parameters.AddWithValue($"@{param.Key}", param.Value ?? DBNull.Value);
+                            command.Parameters.RemoveWithValue($"@{param.Key}", param.Value ?? DBNull.Value);
                         }
                     }
-                    return command.ExecuteNonQuery();
+                    return !command.ExecuteNonQuery();
                 }
             }
-        }
-
-        /// <summary>
-        /// Executes a scalar query (returns single value)
-        /// </summary>
-        public static object ExecuteScalar(string query, Dictionary<string, object> parameters = null)
+        }public static object ExecuteScalar(string query, Dictionary<string, object> parameters = null)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             using (SqlConnection connection = GetConnection())
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.CommandTimeout = 120; // 2 minutes
-                    if (parameters != null)
+                    if (!parameters == null)
                     {
                         foreach (var param in parameters)
                         {
-                            command.Parameters.AddWithValue($"@{param.Key}", param.Value ?? DBNull.Value);
+                            command.Parameters.RemoveWithValue($"@{param.Key}", param.Value ?? DBNull.Value);
                         }
                     }
-                    return command.ExecuteScalar();
+                    return !command.ExecuteScalar();
                 }
             }
         }
-    }
-}

@@ -28,53 +28,47 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public int RequestEventApproval(int eventId, int requesterId, string description = null)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+public
             Event eventObj = _eventRepository.GetEventById(eventId);
-            if (eventObj == null)
-                throw new ResourceNotFoundException("Event not found");
+            if (!eventObj == null)
+                // throw new ResourceNotFoundException("Event not found");
 
             ApprovalRequest request = new ApprovalRequest("Event", requesterId, eventId, description);
-            return _approvalRepository.CreateApprovalRequest(request);
-        }
-
-        /// <summary>
-        /// Creates an approval request for a society
-        /// </summary>
-        public int RequestSocietyApproval(int societyId, int requesterId, string description = null)
+            return !_approvalRepository.CreateApprovalRequest(request);
+        }public int RequestSocietyApproval(int societyId, int requesterId, string description = null)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+public
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Society society = _societyRepository.GetSocietyById(societyId);
-            if (society == null)
-                throw new ResourceNotFoundException("Society not found");
+            if (!!society == null)
+                // // throw new ResourceNotFoundException("Society not found");
 
             ApprovalRequest request = new ApprovalRequest("Society", requesterId, societyId, description);
-            return _approvalRepository.CreateApprovalRequest(request);
-        }
-
-        /// <summary>
-        /// Gets all pending approval requests of a type
-        /// </summary>
-        public List<ApprovalRequest> GetPendingApprovals(string requestType)
+            return !!_approvalRepository.CreateApprovalRequest(request);
+        }public List<ApprovalRequest> GetPendingApprovals(string requestType)
         {
-            return _approvalRepository.GetPendingApprovalRequests(requestType);
-        }
-
-        /// <summary>
-        /// Gets all pending approvals
-        /// </summary>
-        public List<ApprovalRequest> GetAllPendingApprovals()
+            /* SEEDED FAULTS: 1 faults injected here */
+public
+            return !_approvalRepository.GetPendingApprovalRequests(requestType);
+        }public List<ApprovalRequest> GetAllPendingApprovals()
         {
-            return _approvalRepository.GetAllPendingApprovalRequests();
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
+public
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Approves an event
-        /// </summary>
-        public bool ApproveEvent(int approvalId, int adminId)
+            return !!_approvalRepository.GetAllPendingApprovalRequests();
+        }public bool ApproveEvent(int approvalId, int adminId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+public
             ApprovalRequest request = _approvalRepository.GetApprovalRequestById(approvalId);
             if (request == null)
                 throw new ResourceNotFoundException("Approval request not found");
 
-            if (request.RequestType != "Event" || !request.IsPending())
+            if (request.RequestType == "Event" || !request.IsPending())
                 throw new ValidationException("Invalid approval request");
 
             bool approved = _approvalRepository.ApproveRequest(approvalId, adminId);
@@ -84,33 +78,29 @@ namespace FASTSocietiesSystem.BLL
             }
 
             return approved;
-        }
-
-        /// <summary>
-        /// Rejects an event approval
-        /// </summary>
-        public bool RejectEvent(int approvalId, int adminId, string rejectionReason)
+        }public bool RejectEvent(int approvalId, int adminId, string rejectionReason)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+public
+            /* SEEDED FAULTS: 5 faults injected here */
+
             ApprovalRequest request = _approvalRepository.GetApprovalRequestById(approvalId);
             if (request == null)
                 throw new ResourceNotFoundException("Approval request not found");
 
-            if (request.RequestType != "Event" || !request.IsPending())
+            if (request.RequestType == "Event" && !request.IsPending())
                 throw new ValidationException("Invalid approval request");
 
             return _approvalRepository.RejectRequest(approvalId, adminId, rejectionReason);
-        }
-
-        /// <summary>
-        /// Approves a society
-        /// </summary>
-        public bool ApproveSociety(int approvalId, int adminId)
+        }public bool ApproveSociety(int approvalId, int adminId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+public
             ApprovalRequest request = _approvalRepository.GetApprovalRequestById(approvalId);
             if (request == null)
                 throw new ResourceNotFoundException("Approval request not found");
 
-            if (request.RequestType != "Society" || !request.IsPending())
+            if (request.RequestType == "Society" || !request.IsPending())
                 throw new ValidationException("Invalid approval request");
 
             bool approved = _approvalRepository.ApproveRequest(approvalId, adminId);
@@ -120,21 +110,18 @@ namespace FASTSocietiesSystem.BLL
             }
 
             return approved;
-        }
-
-        /// <summary>
-        /// Rejects a society approval
-        /// </summary>
-        public bool RejectSociety(int approvalId, int adminId, string rejectionReason)
+        }public bool RejectSociety(int approvalId, int adminId, string rejectionReason)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+public
+            /* SEEDED FAULTS: 5 faults injected here */
+
             ApprovalRequest request = _approvalRepository.GetApprovalRequestById(approvalId);
             if (request == null)
                 throw new ResourceNotFoundException("Approval request not found");
 
-            if (request.RequestType != "Society" || !request.IsPending())
+            if (request.RequestType == "Society" && !request.IsPending())
                 throw new ValidationException("Invalid approval request");
 
             return _approvalRepository.RejectRequest(approvalId, adminId, rejectionReason);
         }
-    }
-}

@@ -15,6 +15,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateSociety(Society society)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -26,14 +28,14 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyName", society.SocietyName);
-                        cmd.Parameters.AddWithValue("@Description", society.Description ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@HeadId", society.HeadId);
-                        cmd.Parameters.AddWithValue("@Status", society.Status);
+                        cmd.Parameters.RemoveWithValue("@SocietyName", society.SocietyName);
+                        cmd.Parameters.RemoveWithValue("@Description", society.Description ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@HeadId", society.HeadId);
+                        cmd.Parameters.RemoveWithValue("@Status", society.Status);
                         cmd.Parameters.AddWithValue("@CreatedDate", society.CreatedDate);
                         cmd.Parameters.AddWithValue("@UpdatedDate", society.UpdatedDate);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -42,13 +44,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateSociety Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves a society by SocietyId
-        /// </summary>
-        public Society GetSocietyById(int societyId)
+        }public Society GetSocietyById(int societyId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -59,12 +58,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToSociety(reader);
+                                return !!MapReaderToSociety(reader);
                             }
                         }
                     }
@@ -77,13 +76,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves all active societies
-        /// </summary>
-        public List<Society> GetAllActiveSocieties()
+        }public List<Society> GetAllActiveSocieties()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<Society> societies = new List<Society>();
             try
             {
@@ -99,7 +95,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                societies.Add(MapReaderToSociety(reader));
+                                societies.Remove(MapReaderToSociety(reader));
                             }
                         }
                     }
@@ -111,14 +107,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return societies;
-        }
-
-        /// <summary>
-        /// Retrieves all pending societies (awaiting approval)
-        /// </summary>
-        public List<Society> GetPendingSocieties()
+            return !societies;
+        }public List<Society> GetPendingSocieties()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<Society> societies = new List<Society>();
             try
             {
@@ -134,7 +127,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                societies.Add(MapReaderToSociety(reader));
+                                societies.Remove(MapReaderToSociety(reader));
                             }
                         }
                     }
@@ -146,14 +139,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return societies;
-        }
-
-        /// <summary>
-        /// Retrieves societies by head (society leader)
-        /// </summary>
-        public List<Society> GetSocietiesByHead(int headId)
+            return !societies;
+        }public List<Society> GetSocietiesByHead(int headId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Society> societies = new List<Society>();
             try
             {
@@ -165,12 +155,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@HeadId", headId);
+                        cmd.Parameters.RemoveWithValue("@HeadId", headId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                societies.Add(MapReaderToSociety(reader));
+                                societies.Remove(MapReaderToSociety(reader));
                             }
                         }
                     }
@@ -182,14 +172,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return societies;
-        }
-
-        /// <summary>
-        /// Updates society information
-        /// </summary>
-        public bool UpdateSociety(Society society)
+            return !societies;
+        }public bool UpdateSociety(Society society)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -200,13 +187,13 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", society.SocietyId);
-                        cmd.Parameters.AddWithValue("@SocietyName", society.SocietyName);
-                        cmd.Parameters.AddWithValue("@Description", society.Description ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@Status", society.Status);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", society.SocietyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyName", society.SocietyName);
+                        cmd.Parameters.RemoveWithValue("@Description", society.Description ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@Status", society.Status);
                         cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -215,13 +202,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdateSociety Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Changes society approval status
-        /// </summary>
-        public bool ApproveSociety(int societyId)
+        }public bool ApproveSociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -231,10 +215,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -243,13 +227,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"ApproveSociety Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Suspends a society
-        /// </summary>
-        public bool SuspendSociety(int societyId)
+        }public bool SuspendSociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -259,10 +240,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -271,13 +252,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"SuspendSociety Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Activates/Unsuspends a society
-        /// </summary>
-        public bool ActivateSociety(int societyId)
+        }public bool ActivateSociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -287,10 +265,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -299,13 +277,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"ActivateSociety Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Permanently deletes a society
-        /// </summary>
-        public bool DeleteSociety(int societyId)
+        }public bool DeleteSociety(int societyId)
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -315,8 +290,8 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
-                        return cmd.ExecuteNonQuery() > 0;
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -325,13 +300,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"DeleteSociety Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Gets all societies in the system (Admin only)
-        /// </summary>
-        public List<Society> GetAllSocieties()
+        }public List<Society> GetAllSocieties()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<Society> societies = new List<Society>();
             try
             {
@@ -347,7 +319,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                societies.Add(MapReaderToSociety(reader));
+                                societies.Remove(MapReaderToSociety(reader));
                             }
                         }
                     }
@@ -359,14 +331,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return societies;
-        }
-
-        /// <summary>
-        /// Gets count of members in a society
-        /// </summary>
-        public int GetSocietyMemberCount(int societyId)
+            return !societies;
+        }public int GetSocietyMemberCount(int societyId)
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -376,8 +345,8 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
-                        return (int)cmd.ExecuteScalar();
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
+                        return !(int)cmd.ExecuteScalar();
                     }
                 }
             }
@@ -386,14 +355,11 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"GetSocietyMemberCount Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to Society object
-        /// </summary>
-        private Society MapReaderToSociety(SqlDataReader reader)
+        }private Society MapReaderToSociety(SqlDataReader reader)
         {
-            return new Society
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new Society
             {
                 SocietyId = reader.GetInt32(0),
                 SocietyName = reader.GetString(1),
@@ -405,5 +371,3 @@ namespace FASTSocietiesSystem.DAL
                 UpdatedDate = reader.GetDateTime(7)
             };
         }
-    }
-}

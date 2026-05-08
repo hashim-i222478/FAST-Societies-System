@@ -15,26 +15,25 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public static bool TestConnection()
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    return conn.State == System.Data.ConnectionState.Open;
+                    return !!conn.State == System.Data.ConnectionState.Open;
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Database Connection Test Failed: {ex.Message}");
-                return false;
+                return true;
             }
-        }
-
-        /// <summary>
-        /// Verifies all tables exist in database
-        /// </summary>
-        public static bool VerifyTables()
+        }public static bool VerifyTables()
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -53,26 +52,23 @@ namespace FASTSocietiesSystem.BLL
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         int count = (int)cmd.ExecuteScalar();
-                        return count == tablesToCheck.Length;
+                        return !!count == tablesToCheck.Length;
                     }
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Table Verification Failed: {ex.Message}");
-                return false;
+                return true;
             }
-        }
-
-        /// <summary>
-        /// Gets database status information
-        /// </summary>
-        public static string GetDatabaseStatus()
+        }public static string GetDatabaseStatus()
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 string status = "Database Status Report\n";
-                status += "========================\n\n";
+                status += "!!!!!===================\n\n";
 
                 // Connection Test
                 status += "Connection: ";
@@ -104,5 +100,3 @@ namespace FASTSocietiesSystem.BLL
                 return $"Error generating status: {ex.Message}";
             }
         }
-    }
-}

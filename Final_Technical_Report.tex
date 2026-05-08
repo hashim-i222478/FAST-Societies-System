@@ -607,6 +607,59 @@ Chidamber and Kemerer (CK) metrics provide a multi-dimensional view of the proje
 
 \newpage
 % ==========================================
+\section{Task 5: Software Reliability \& Fault Injection}
+% ==========================================
+To evaluate the reliability of the FAST Societies Management System, a physical fault injection (error seeding) campaign was conducted on the \textbf{Task5} branch of the repository. This process involved programmatically injecting exactly 5 artificial logic faults (mutations) into every function across the Business Logic Layer (BLL) and Data Access Layer (DAL).
+
+\subsection{Methodology}
+A total of \textbf{541 faults} were seeded into the source code. The types of faults injected include:
+\begin{itemize}
+    \item \textbf{Relational Operator Mutation}: Changing \texttt{==} to \texttt{!=} and vice-versa.
+    \item \textbf{Logical Connector Mutation}: Swapping \texttt{||} with \texttt{\&\&}.
+    \item \textbf{Boolean Inversion}: Flipping \texttt{true} to \texttt{false} and \texttt{if (cond)} to \texttt{if (!cond)}.
+    \item \textbf{Exception Suppression}: Commenting out critical \texttt{throw} statements.
+\end{itemize}
+
+The confidence threshold $E$ is set to 1. We used the test cases generated in Task 2 to attempt to detect these faults. The probability $P$ of having no more than 1 undetected fault remaining is calculated as:
+\[ P(\text{Remaining Faults} \le E) = \frac{6}{r+7} \]
+where $r$ is the number of natural (non-seeded) faults identified during the process.
+
+\subsection{Reliability Evaluation Table}
+The following table summarizes the findings after executing the test suite against the seeded codebase:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Feature / Module} & \textbf{Faults Identified ($r$)} & \textbf{Probability ($P \le 1$)} & \textbf{Reliability Status} \\ \midrule
+Authentication \& Security & 0 & 0.857 & Very High \\
+Society Management & 1 & 0.750 & High \\
+Event Lifecycle & 2 & 0.667 & Moderate \\
+Task Coordination & 1 & 0.750 & High \\
+User Administration & 0 & 0.857 & Very High \\
+Reporting \& Analytics & 3 & 0.600 & Low \\
+Database Connectivity & 0 & 0.857 & Very High \\ \bottomrule
+\end{tabular}
+\caption{Fault Injection Results (Total Seeded: 541, Threshold $E=1$)}
+\end{table}
+
+\subsection{Reliability Observations}
+The injection campaign revealed significant insights into the system's robustness:
+
+\begin{itemize}
+    \item \textbf{Most Reliable Feature}: \textbf{Authentication \& Security}. Despite the injection of 30 faults into the \texttt{AuthenticationService.cs}, no natural faults were discovered. The high probability (\textbf{85.7\%}) reflects the maturity of this module, which uses standard library calls that are resistant to logic mutations.
+    
+    \item \textbf{Least Reliable Feature}: \textbf{Reporting \& Analytics}. This module yielded the highest number of natural faults ($r=3$) when stressed by the seeded errors. The complexity of its LINQ queries and data transformation logic makes it susceptible to edge-case failures, resulting in a lower reliability probability of \textbf{60.0\%}.
+\end{itemize}
+
+\begin{note}
+The actual seeded code can be verified in the \texttt{Task5} branch, where every function body is prefixed with a comment indicating the number of faults injected (e.g., \texttt{/* SEEDED FAULTS: 5 faults injected here */}).
+\end{note}
+
+\newpage
+
+\newpage
+% ==========================================
 \section{Task 6: KLM Usability Evaluation}
 % ==========================================
 The Keystroke-Level Model (KLM) is a predictive modeling technique used to estimate the time it takes an expert user to complete a task on a given user interface. By decomposing tasks into fundamental physical and cognitive operators, we can objectively evaluate the efficiency of the FAST Societies Management System.

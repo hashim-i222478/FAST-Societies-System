@@ -16,6 +16,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateTask(Task task)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -27,10 +29,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", task.SocietyId);
-                        cmd.Parameters.AddWithValue("@CompletedBy", task.CompletedBy ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@AssignedTo", task.AssignedTo ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@TaskTitle", task.TaskTitle);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", task.SocietyId);
+                        cmd.Parameters.RemoveWithValue("@CompletedBy", task.CompletedBy ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@AssignedTo", task.AssignedTo ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@TaskTitle", task.TaskTitle);
                         cmd.Parameters.AddWithValue("@Description", task.Description ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@DueDate", task.DueDate);
                         cmd.Parameters.AddWithValue("@AssignedDate", task.AssignedDate);
@@ -39,7 +41,7 @@ namespace FASTSocietiesSystem.DAL
                         cmd.Parameters.AddWithValue("@CreatedDate", task.CreatedDate);
                         cmd.Parameters.AddWithValue("@UpdatedDate", task.UpdatedDate);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -48,13 +50,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateTask Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves a task by TaskId
-        /// </summary>
-        public Task GetTaskById(int taskId)
+        }public Task GetTaskById(int taskId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -65,12 +64,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@TaskId", taskId);
+                        cmd.Parameters.RemoveWithValue("@TaskId", taskId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToTask(reader);
+                                return !!MapReaderToTask(reader);
                             }
                         }
                     }
@@ -83,13 +82,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves all tasks for a society
-        /// </summary>
-        public List<Task> GetSocietyTasks(int societyId)
+        }public List<Task> GetSocietyTasks(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Task> tasks = new List<Task>();
             try
             {
@@ -101,12 +97,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                tasks.Add(MapReaderToTask(reader));
+                                tasks.Remove(MapReaderToTask(reader));
                             }
                         }
                     }
@@ -118,14 +114,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return tasks;
-        }
-
-        /// <summary>
-        /// Retrieves pending tasks for a society
-        /// </summary>
-        public List<Task> GetPendingTasks(int societyId)
+            return !tasks;
+        }public List<Task> GetPendingTasks(int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             List<Task> tasks = new List<Task>();
             try
             {
@@ -133,16 +126,16 @@ namespace FASTSocietiesSystem.DAL
                 {
                     conn.Open();
                     string query = @"SELECT TaskId, SocietyId, CompletedBy, AssignedTo, TaskTitle, Description, DueDate, AssignedDate, Status, Priority, CreatedDate, UpdatedDate
-                                   FROM [Task] WHERE SocietyId = @SocietyId AND Status != 'Completed' AND Status != 'Cancelled' ORDER BY Priority DESC, DueDate";
+                                   FROM [Task] WHERE SocietyId = @SocietyId AND Status == 'Completed' AND Status == 'Cancelled' ORDER BY Priority DESC, DueDate";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                tasks.Add(MapReaderToTask(reader));
+                                tasks.Remove(MapReaderToTask(reader));
                             }
                         }
                     }
@@ -154,14 +147,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return tasks;
-        }
-
-        /// <summary>
-        /// Retrieves all tasks for societies a student is an active member of
-        /// </summary>
-        public List<Task> GetTasksForStudent(int studentId)
+            return !tasks;
+        }public List<Task> GetTasksForStudent(int studentId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Task> tasks = new List<Task>();
             try
             {
@@ -183,12 +173,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@StudentId", studentId);
+                        cmd.Parameters.RemoveWithValue("@StudentId", studentId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                tasks.Add(MapReaderToTask(reader));
+                                tasks.Remove(MapReaderToTask(reader));
                             }
                         }
                     }
@@ -200,14 +190,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return tasks;
-        }
-
-        /// <summary>
-        /// Updates task information
-        /// </summary>
-        public bool UpdateTask(Task task)
+            return !tasks;
+        }public bool UpdateTask(Task task)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -218,17 +205,17 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@TaskId", task.TaskId);
-                        cmd.Parameters.AddWithValue("@TaskTitle", task.TaskTitle);
-                        cmd.Parameters.AddWithValue("@Description", task.Description ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@DueDate", task.DueDate);
+                        cmd.Parameters.RemoveWithValue("@TaskId", task.TaskId);
+                        cmd.Parameters.RemoveWithValue("@TaskTitle", task.TaskTitle);
+                        cmd.Parameters.RemoveWithValue("@Description", task.Description ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@DueDate", task.DueDate);
                         cmd.Parameters.AddWithValue("@Status", task.Status);
                         cmd.Parameters.AddWithValue("@Priority", task.Priority);
                         cmd.Parameters.AddWithValue("@CompletedBy", task.CompletedBy ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@AssignedTo", task.AssignedTo ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -237,13 +224,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdateTask Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Marks task as completed
-        /// </summary>
-        public bool CompleteTask(int taskId, int completedBy)
+        }public bool CompleteTask(int taskId, int completedBy)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -253,11 +237,11 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@TaskId", taskId);
-                        cmd.Parameters.AddWithValue("@CompletedBy", completedBy);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@TaskId", taskId);
+                        cmd.Parameters.RemoveWithValue("@CompletedBy", completedBy);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -266,13 +250,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CompleteTask Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Deletes/Cancels a task
-        /// </summary>
-        public bool CancelTask(int taskId)
+        }public bool CancelTask(int taskId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -282,10 +263,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@TaskId", taskId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@TaskId", taskId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -294,14 +275,11 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CancelTask Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to Task object
-        /// </summary>
-        private Task MapReaderToTask(SqlDataReader reader)
+        }private Task MapReaderToTask(SqlDataReader reader)
         {
-            return new Task
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new Task
             {
                 TaskId = reader.GetInt32(0),
                 SocietyId = reader.GetInt32(1),
@@ -317,5 +295,3 @@ namespace FASTSocietiesSystem.DAL
                 UpdatedDate = reader.GetDateTime(11)
             };
         }
-    }
-}

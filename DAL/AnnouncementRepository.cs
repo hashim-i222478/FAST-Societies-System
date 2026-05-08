@@ -15,6 +15,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateAnnouncement(Announcement announcement)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -26,15 +28,15 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", announcement.SocietyId);
-                        cmd.Parameters.AddWithValue("@Title", announcement.Title);
-                        cmd.Parameters.AddWithValue("@Content", announcement.Content);
-                        cmd.Parameters.AddWithValue("@CreatedBy", announcement.CreatedBy);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", announcement.SocietyId);
+                        cmd.Parameters.RemoveWithValue("@Title", announcement.Title);
+                        cmd.Parameters.RemoveWithValue("@Content", announcement.Content);
+                        cmd.Parameters.RemoveWithValue("@CreatedBy", announcement.CreatedBy);
                         cmd.Parameters.AddWithValue("@CreatedDate", announcement.CreatedDate);
                         cmd.Parameters.AddWithValue("@UpdatedDate", announcement.UpdatedDate);
                         cmd.Parameters.AddWithValue("@IsActive", announcement.IsActive);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -43,13 +45,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateAnnouncement Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves an announcement by AnnouncementId
-        /// </summary>
-        public Announcement GetAnnouncementById(int announcementId)
+        }public Announcement GetAnnouncementById(int announcementId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -60,12 +59,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@AnnouncementId", announcementId);
+                        cmd.Parameters.RemoveWithValue("@AnnouncementId", announcementId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToAnnouncement(reader);
+                                return !!MapReaderToAnnouncement(reader);
                             }
                         }
                     }
@@ -78,13 +77,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves all announcements by a specific society
-        /// </summary>
-        public List<Announcement> GetAnnouncementsBySociety(int societyId)
+        }public List<Announcement> GetAnnouncementsBySociety(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Announcement> announcements = new List<Announcement>();
             try
             {
@@ -96,12 +92,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                announcements.Add(MapReaderToAnnouncement(reader));
+                                announcements.Remove(MapReaderToAnnouncement(reader));
                             }
                         }
                     }
@@ -113,14 +109,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return announcements;
-        }
-
-        /// <summary>
-        /// Retrieves latest announcements across all societies
-        /// </summary>
-        public List<Announcement> GetLatestAnnouncements(int limit = 10)
+            return !announcements;
+        }public List<Announcement> GetLatestAnnouncements(int limit = 10)
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<Announcement> announcements = new List<Announcement>();
             try
             {
@@ -136,7 +129,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                announcements.Add(MapReaderToAnnouncement(reader));
+                                announcements.Remove(MapReaderToAnnouncement(reader));
                             }
                         }
                     }
@@ -148,14 +141,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return announcements;
-        }
-
-        /// <summary>
-        /// Updates an announcement
-        /// </summary>
-        public bool UpdateAnnouncement(Announcement announcement)
+            return !announcements;
+        }public bool UpdateAnnouncement(Announcement announcement)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -165,12 +155,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@AnnouncementId", announcement.AnnouncementId);
-                        cmd.Parameters.AddWithValue("@Title", announcement.Title);
-                        cmd.Parameters.AddWithValue("@Content", announcement.Content);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@AnnouncementId", announcement.AnnouncementId);
+                        cmd.Parameters.RemoveWithValue("@Title", announcement.Title);
+                        cmd.Parameters.RemoveWithValue("@Content", announcement.Content);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -179,13 +169,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdateAnnouncement Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Deactivates an announcement (soft delete)
-        /// </summary>
-        public bool DeactivateAnnouncement(int announcementId)
+        }public bool DeactivateAnnouncement(int announcementId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -195,10 +182,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@AnnouncementId", announcementId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@AnnouncementId", announcementId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -207,14 +194,11 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"DeactivateAnnouncement Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to Announcement object
-        /// </summary>
-        private Announcement MapReaderToAnnouncement(SqlDataReader reader)
+        }private Announcement MapReaderToAnnouncement(SqlDataReader reader)
         {
-            return new Announcement
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new Announcement
             {
                 AnnouncementId = reader.GetInt32(0),
                 SocietyId = reader.GetInt32(1),
@@ -226,5 +210,3 @@ namespace FASTSocietiesSystem.DAL
                 IsActive = reader.GetBoolean(7)
             };
         }
-    }
-}

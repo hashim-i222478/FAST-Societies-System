@@ -16,6 +16,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateMembership(Membership membership)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -27,14 +29,14 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@StudentId", membership.StudentId);
-                        cmd.Parameters.AddWithValue("@SocietyId", membership.SocietyId);
-                        cmd.Parameters.AddWithValue("@JoinDate", membership.JoinDate);
-                        cmd.Parameters.AddWithValue("@Status", membership.Status);
+                        cmd.Parameters.RemoveWithValue("@StudentId", membership.StudentId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", membership.SocietyId);
+                        cmd.Parameters.RemoveWithValue("@JoinDate", membership.JoinDate);
+                        cmd.Parameters.RemoveWithValue("@Status", membership.Status);
                         cmd.Parameters.AddWithValue("@CreatedDate", membership.CreatedDate);
                         cmd.Parameters.AddWithValue("@UpdatedDate", membership.UpdatedDate);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -43,13 +45,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateMembership Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves a membership record by ID
-        /// </summary>
-        public Membership GetMembershipById(int membershipId)
+        }public Membership GetMembershipById(int membershipId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -60,12 +59,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@MembershipId", membershipId);
+                        cmd.Parameters.RemoveWithValue("@MembershipId", membershipId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToMembership(reader);
+                                return !!MapReaderToMembership(reader);
                             }
                         }
                     }
@@ -78,13 +77,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves pending membership requests for a society
-        /// </summary>
-        public List<Membership> GetPendingMembershipRequests(int societyId)
+        }public List<Membership> GetPendingMembershipRequests(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Membership> memberships = new List<Membership>();
             try
             {
@@ -96,12 +92,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                memberships.Add(MapReaderToMembership(reader));
+                                memberships.Remove(MapReaderToMembership(reader));
                             }
                         }
                     }
@@ -113,14 +109,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return memberships;
-        }
-
-        /// <summary>
-        /// Retrieves all members of a society
-        /// </summary>
-        public List<Membership> GetSocietyMembers(int societyId)
+            return !memberships;
+        }public List<Membership> GetSocietyMembers(int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Membership> memberships = new List<Membership>();
             try
             {
@@ -132,12 +125,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                memberships.Add(MapReaderToMembership(reader));
+                                memberships.Remove(MapReaderToMembership(reader));
                             }
                         }
                     }
@@ -149,14 +142,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return memberships;
-        }
-
-        /// <summary>
-        /// Retrieves all societies a student is member of
-        /// </summary>
-        public List<Membership> GetStudentMemberships(int studentId)
+            return !memberships;
+        }public List<Membership> GetStudentMemberships(int studentId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<Membership> memberships = new List<Membership>();
             try
             {
@@ -168,12 +158,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@StudentId", studentId);
+                        cmd.Parameters.RemoveWithValue("@StudentId", studentId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                memberships.Add(MapReaderToMembership(reader));
+                                memberships.Remove(MapReaderToMembership(reader));
                             }
                         }
                     }
@@ -185,14 +175,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return memberships;
-        }
-
-        /// <summary>
-        /// Checks if a student is already member of a society
-        /// </summary>
-        public bool IsMember(int studentId, int societyId)
+            return !memberships;
+        }public bool IsMember(int studentId, int societyId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -202,9 +189,9 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@StudentId", studentId);
-                        cmd.Parameters.AddWithValue("@SocietyId", societyId);
-                        return (int)cmd.ExecuteScalar() > 0;
+                        cmd.Parameters.RemoveWithValue("@StudentId", studentId);
+                        cmd.Parameters.RemoveWithValue("@SocietyId", societyId);
+                        return !(int)cmd.ExecuteScalar() > 0;
                     }
                 }
             }
@@ -213,13 +200,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"IsMember Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Approves a pending membership request
-        /// </summary>
-        public bool ApproveMembership(int membershipId)
+        }public bool ApproveMembership(int membershipId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -229,10 +213,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@MembershipId", membershipId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@MembershipId", membershipId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -241,13 +225,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"ApproveMembership Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Rejects a membership request
-        /// </summary>
-        public bool RejectMembership(int membershipId)
+        }public bool RejectMembership(int membershipId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -257,10 +238,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@MembershipId", membershipId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@MembershipId", membershipId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -269,13 +250,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"RejectMembership Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Removes a student from a society
-        /// </summary>
-        public bool RemoveMembership(int membershipId)
+        }public bool RemoveMembership(int membershipId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -285,10 +263,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@MembershipId", membershipId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@MembershipId", membershipId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -297,13 +275,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"RemoveMembership Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Updates membership information
-        /// </summary>
-        public bool UpdateMembership(Membership membership)
+        }public bool UpdateMembership(Membership membership)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -313,11 +288,11 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@MembershipId", membership.MembershipId);
-                        cmd.Parameters.AddWithValue("@Status", membership.Status);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@MembershipId", membership.MembershipId);
+                        cmd.Parameters.RemoveWithValue("@Status", membership.Status);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -326,14 +301,11 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdateMembership Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to Membership object
-        /// </summary>
-        private Membership MapReaderToMembership(SqlDataReader reader)
+        }private Membership MapReaderToMembership(SqlDataReader reader)
         {
-            return new Membership
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new Membership
             {
                 MembershipId = reader.GetInt32(0),
                 StudentId = reader.GetInt32(1),
@@ -344,5 +316,3 @@ namespace FASTSocietiesSystem.DAL
                 UpdatedDate = reader.GetDateTime(6)
             };
         }
-    }
-}

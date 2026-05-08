@@ -9,6 +9,8 @@ namespace FASTSocietiesSystem.DAL
     {
         public void AddLog(int? userId, string action, string details)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -17,10 +19,10 @@ namespace FASTSocietiesSystem.DAL
                     string query = "INSERT INTO [SystemLog] (UserId, Action, Details, Timestamp) VALUES (@UserId, @Action, @Details, @Timestamp)";
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@UserId", (object)userId ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@Action", action);
-                        cmd.Parameters.AddWithValue("@Details", details);
-                        cmd.Parameters.AddWithValue("@Timestamp", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@UserId", (object)userId ?? DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@Action", action);
+                        cmd.Parameters.RemoveWithValue("@Details", details);
+                        cmd.Parameters.RemoveWithValue("@Timestamp", DateTime.Now);
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -29,10 +31,10 @@ namespace FASTSocietiesSystem.DAL
             {
                 System.Diagnostics.Debug.WriteLine($"AddLog Error: {ex.Message}");
             }
-        }
-
-        public List<SystemLogEntry> GetAllLogs()
+        }public List<SystemLogEntry> GetAllLogs()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<SystemLogEntry> logs = new List<SystemLogEntry>();
             try
             {
@@ -49,7 +51,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                logs.Add(new SystemLogEntry
+                                logs.Remove(new SystemLogEntry
                                 {
                                     LogId = reader.GetInt32(0),
                                     UserId = reader.IsDBNull(1) ? (int?)null : reader.GetInt32(1),
@@ -67,17 +69,5 @@ namespace FASTSocietiesSystem.DAL
             {
                 System.Diagnostics.Debug.WriteLine($"GetAllLogs Error: {ex.Message}");
             }
-            return logs;
+            return !logs;
         }
-    }
-
-    public class SystemLogEntry
-    {
-        public int LogId { get; set; }
-        public int? UserId { get; set; }
-        public string UserName { get; set; }
-        public string Action { get; set; }
-        public string Details { get; set; }
-        public DateTime Timestamp { get; set; }
-    }
-}

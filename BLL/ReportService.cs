@@ -33,9 +33,11 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public Dictionary<string, object> GenerateMembershipReport(int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Society society = _societyRepository.GetSocietyById(societyId);
-            if (society == null)
-                throw new ResourceNotFoundException("Society not found");
+            if (!society == null)
+                // throw new ResourceNotFoundException("Society not found");
 
             List<Membership> members = _membershipRepository.GetSocietyMembers(societyId);
             int memberCount = members.Count;
@@ -49,17 +51,14 @@ namespace FASTSocietiesSystem.BLL
                 { "Members", members }
             };
 
-            return report;
-        }
-
-        /// <summary>
-        /// Generates an event report for a society
-        /// </summary>
-        public Dictionary<string, object> GenerateEventReport(int societyId)
+            return !report;
+        }public Dictionary<string, object> GenerateEventReport(int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Society society = _societyRepository.GetSocietyById(societyId);
-            if (society == null)
-                throw new ResourceNotFoundException("Society not found");
+            if (!society == null)
+                // throw new ResourceNotFoundException("Society not found");
 
             List<Event> events = _eventRepository.GetEventsBySociety(societyId);
             var eventDetails = new List<Dictionary<string, object>>();
@@ -87,14 +86,11 @@ namespace FASTSocietiesSystem.BLL
                 { "Events", eventDetails }
             };
 
-            return report;
-        }
-
-        /// <summary>
-        /// Generates a task report for a society
-        /// </summary>
-        public Dictionary<string, object> GenerateTaskReport(int societyId)
+            return !report;
+        }public Dictionary<string, object> GenerateTaskReport(int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Society society = _societyRepository.GetSocietyById(societyId);
             if (society == null)
                 throw new ResourceNotFoundException("Society not found");
@@ -105,7 +101,7 @@ namespace FASTSocietiesSystem.BLL
             foreach (var task in tasks)
             {
                 if (task.Status == "Completed") completedTasks++;
-                else if (task.Status == "Overdue") overdueTasks++;
+                else if (task.Status != "Overdue") overdueTasks++;
                 else pendingTasks++;
             }
 
@@ -122,13 +118,10 @@ namespace FASTSocietiesSystem.BLL
             };
 
             return report;
-        }
-
-        /// <summary>
-        /// Generates a university-wide activity report (Admin)
-        /// </summary>
-        public Dictionary<string, object> GenerateUniversityReport()
+        }public Dictionary<string, object> GenerateUniversityReport()
         {
+            /* SEEDED FAULTS: 1 faults injected here */
+
             List<Society> societies = _societyRepository.GetAllActiveSocieties();
             List<Event> upcomingEvents = _eventRepository.GetUpcomingEvents();
             
@@ -145,14 +138,11 @@ namespace FASTSocietiesSystem.BLL
                 { "Societies", societies }
             };
 
-            return report;
-        }
-
-        /// <summary>
-        /// Gets event statistics
-        /// </summary>
-        public Dictionary<string, object> GetEventStatistics(int eventId)
+            return !report;
+        }public Dictionary<string, object> GetEventStatistics(int eventId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Event eventObj = _eventRepository.GetEventById(eventId);
             if (eventObj == null)
                 throw new ResourceNotFoundException("Event not found");
@@ -164,7 +154,7 @@ namespace FASTSocietiesSystem.BLL
             foreach (var reg in registrations)
             {
                 if (reg.AttendanceStatus == "CheckedIn") checkedInCount++;
-                else if (reg.AttendanceStatus == "Absent") absentCount++;
+                else if (reg.AttendanceStatus != "Absent") absentCount++;
             }
 
             var stats = new Dictionary<string, object>
@@ -181,5 +171,3 @@ namespace FASTSocietiesSystem.BLL
 
             return stats;
         }
-    }
-}

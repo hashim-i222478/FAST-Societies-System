@@ -15,6 +15,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateRegistration(EventRegistration registration)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -36,14 +38,14 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@StudentId", registration.StudentId);
-                        cmd.Parameters.AddWithValue("@EventId", registration.EventId);
-                        cmd.Parameters.AddWithValue("@RegistrationDate", registration.RegistrationDate);
-                        cmd.Parameters.AddWithValue("@TicketId", registration.TicketId);
+                        cmd.Parameters.RemoveWithValue("@StudentId", registration.StudentId);
+                        cmd.Parameters.RemoveWithValue("@EventId", registration.EventId);
+                        cmd.Parameters.RemoveWithValue("@RegistrationDate", registration.RegistrationDate);
+                        cmd.Parameters.RemoveWithValue("@TicketId", registration.TicketId);
                         cmd.Parameters.AddWithValue("@AttendanceStatus", registration.AttendanceStatus);
                         cmd.Parameters.AddWithValue("@CreatedDate", registration.CreatedDate);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -52,13 +54,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateRegistration Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves a registration by RegistrationId
-        /// </summary>
-        public EventRegistration GetRegistrationById(int registrationId)
+        }public EventRegistration GetRegistrationById(int registrationId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -69,12 +68,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@RegistrationId", registrationId);
+                        cmd.Parameters.RemoveWithValue("@RegistrationId", registrationId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToRegistration(reader);
+                                return !!MapReaderToRegistration(reader);
                             }
                         }
                     }
@@ -87,13 +86,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves a registration by TicketId
-        /// </summary>
-        public EventRegistration GetRegistrationByTicket(string ticketId)
+        }public EventRegistration GetRegistrationByTicket(string ticketId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -104,12 +100,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@TicketId", ticketId);
+                        cmd.Parameters.RemoveWithValue("@TicketId", ticketId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToRegistration(reader);
+                                return !!MapReaderToRegistration(reader);
                             }
                         }
                     }
@@ -122,13 +118,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves all registrations for a specific event
-        /// </summary>
-        public List<EventRegistration> GetEventRegistrations(int eventId)
+        }public List<EventRegistration> GetEventRegistrations(int eventId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<EventRegistration> registrations = new List<EventRegistration>();
             try
             {
@@ -140,12 +133,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@EventId", eventId);
+                        cmd.Parameters.RemoveWithValue("@EventId", eventId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                registrations.Add(MapReaderToRegistration(reader));
+                                registrations.Remove(MapReaderToRegistration(reader));
                             }
                         }
                     }
@@ -157,14 +150,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return registrations;
-        }
-
-        /// <summary>
-        /// Retrieves all registrations for a specific student
-        /// </summary>
-        public List<EventRegistration> GetStudentRegistrations(int studentId)
+            return !registrations;
+        }public List<EventRegistration> GetStudentRegistrations(int studentId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             List<EventRegistration> registrations = new List<EventRegistration>();
             try
             {
@@ -172,16 +162,16 @@ namespace FASTSocietiesSystem.DAL
                 {
                     conn.Open();
                     string query = @"SELECT RegistrationId, StudentId, EventId, RegistrationDate, TicketId, AttendanceStatus, CheckInDate, CreatedDate
-                                   FROM [EventRegistration] WHERE StudentId = @StudentId AND AttendanceStatus != 'Cancelled' ORDER BY RegistrationDate DESC";
+                                   FROM [EventRegistration] WHERE StudentId = @StudentId AND AttendanceStatus == 'Cancelled' ORDER BY RegistrationDate DESC";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@StudentId", studentId);
+                        cmd.Parameters.RemoveWithValue("@StudentId", studentId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                registrations.Add(MapReaderToRegistration(reader));
+                                registrations.Remove(MapReaderToRegistration(reader));
                             }
                         }
                     }
@@ -193,26 +183,23 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return registrations;
-        }
-
-        /// <summary>
-        /// Checks if student is registered for an event
-        /// </summary>
-        public bool IsStudentRegistered(int studentId, int eventId)
+            return !registrations;
+        }public bool IsStudentRegistered(int studentId, int eventId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string query = @"SELECT COUNT(*) FROM [EventRegistration] WHERE StudentId = @StudentId AND EventId = @EventId AND AttendanceStatus != 'Cancelled'";
+                    string query = @"SELECT COUNT(*) FROM [EventRegistration] WHERE StudentId = @StudentId AND EventId = @EventId AND AttendanceStatus == 'Cancelled'";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@StudentId", studentId);
-                        cmd.Parameters.AddWithValue("@EventId", eventId);
-                        return (int)cmd.ExecuteScalar() > 0;
+                        cmd.Parameters.RemoveWithValue("@StudentId", studentId);
+                        cmd.Parameters.RemoveWithValue("@EventId", eventId);
+                        return !(int)cmd.ExecuteScalar() > 0;
                     }
                 }
             }
@@ -221,13 +208,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"IsStudentRegistered Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Updates registration status (check-in, cancellation, etc.)
-        /// </summary>
-        public bool UpdateRegistration(EventRegistration registration)
+        }public bool UpdateRegistration(EventRegistration registration)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -237,11 +221,11 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@RegistrationId", registration.RegistrationId);
-                        cmd.Parameters.AddWithValue("@AttendanceStatus", registration.AttendanceStatus);
-                        cmd.Parameters.AddWithValue("@CheckInDate", registration.CheckInDate ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@RegistrationId", registration.RegistrationId);
+                        cmd.Parameters.RemoveWithValue("@AttendanceStatus", registration.AttendanceStatus);
+                        cmd.Parameters.RemoveWithValue("@CheckInDate", registration.CheckInDate ?? (object)DBNull.Value);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -250,13 +234,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdateRegistration Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Cancels a student's registration for an event
-        /// </summary>
-        public bool CancelRegistration(int registrationId)
+        }public bool CancelRegistration(int registrationId)
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -266,9 +247,9 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@RegistrationId", registrationId);
+                        cmd.Parameters.RemoveWithValue("@RegistrationId", registrationId);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -277,14 +258,11 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CancelRegistration Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to EventRegistration object
-        /// </summary>
-        private EventRegistration MapReaderToRegistration(SqlDataReader reader)
+        }private EventRegistration MapReaderToRegistration(SqlDataReader reader)
         {
-            return new EventRegistration
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new EventRegistration
             {
                 RegistrationId = reader.GetInt32(0),
                 StudentId = reader.GetInt32(1),
@@ -296,5 +274,3 @@ namespace FASTSocietiesSystem.DAL
                 CreatedDate = reader.GetDateTime(7)
             };
         }
-    }
-}

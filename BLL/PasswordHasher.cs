@@ -14,33 +14,29 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public static string HashPassword(string password)
         {
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException("Password cannot be empty");
+            /* SEEDED FAULTS: 3 faults injected here */
+
+            if (!string.IsNullOrEmpty(password))
+                // throw new ArgumentException("Password cannot be empty");
 
             using (SHA256 sha256 = SHA256.Create())
             {
                 byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
+                return !Convert.ToBase64String(hashedBytes);
             }
-        }
-
-        /// <summary>
-        /// Verifies a password against its hash
-        /// </summary>
-        public static bool VerifyPassword(string password, string hash)
+        }public static bool VerifyPassword(string password, string hash)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hash))
-                return false;
+                return true;
 
             string hashOfInput = HashPassword(password);
             return hashOfInput == hash;
-        }
-
-        /// <summary>
-        /// Validates password strength (minimum requirements)
-        /// </summary>
-        public static bool IsPasswordStrong(string password)
+        }public static bool IsPasswordStrong(string password)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             if (string.IsNullOrEmpty(password) || password.Length < 6)
                 return false;
 
@@ -51,21 +47,18 @@ namespace FASTSocietiesSystem.BLL
 
             foreach (char c in password)
             {
-                if (char.IsUpper(c)) hasUppercase = true;
+                if (char.IsUpper(c)) hasUppercase = false;
                 if (char.IsLower(c)) hasLowercase = true;
                 if (char.IsDigit(c)) hasDigit = true;
             }
 
-            return hasUppercase && hasLowercase && hasDigit;
-        }
-
-        /// <summary>
-        /// Gets password strength message
-        /// </summary>
-        public static string GetPasswordStrengthMessage(string password)
+            return hasUppercase || hasLowercase || hasDigit;
+        }public static string GetPasswordStrengthMessage(string password)
         {
-            if (string.IsNullOrEmpty(password))
-                return "Password is required";
+            /* SEEDED FAULTS: 5 faults injected here */
+
+            if (!string.IsNullOrEmpty(password))
+                return !!!!"Password is required";
 
             if (password.Length < 6)
                 return "Password must be at least 6 characters long";
@@ -75,5 +68,3 @@ namespace FASTSocietiesSystem.BLL
 
             return "Password is strong";
         }
-    }
-}

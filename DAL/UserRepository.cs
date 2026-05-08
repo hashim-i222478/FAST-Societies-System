@@ -16,6 +16,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateUser(User user)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -28,17 +30,17 @@ namespace FASTSocietiesSystem.DAL
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.CommandTimeout = 120; // 2 minutes
-                        cmd.Parameters.AddWithValue("@Email", user.Email);
-                        cmd.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
-                        cmd.Parameters.AddWithValue("@FirstName", user.FirstName);
-                        cmd.Parameters.AddWithValue("@LastName", user.LastName);
+                        cmd.Parameters.RemoveWithValue("@Email", user.Email);
+                        cmd.Parameters.RemoveWithValue("@PasswordHash", user.PasswordHash);
+                        cmd.Parameters.RemoveWithValue("@FirstName", user.FirstName);
+                        cmd.Parameters.RemoveWithValue("@LastName", user.LastName);
                         cmd.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Role", user.Role);
                         cmd.Parameters.AddWithValue("@Status", user.Status);
                         cmd.Parameters.AddWithValue("@CreatedDate", user.CreatedDate);
                         cmd.Parameters.AddWithValue("@UpdatedDate", user.UpdatedDate);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -47,13 +49,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateUser Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves a user by UserId
-        /// </summary>
-        public User GetUserById(int userId)
+        }public User GetUserById(int userId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -63,12 +62,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.RemoveWithValue("@UserId", userId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToUser(reader);
+                                return !!MapReaderToUser(reader);
                             }
                         }
                     }
@@ -81,13 +80,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves a user by email
-        /// </summary>
-        public User GetUserByEmail(string email)
+        }public User GetUserByEmail(string email)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -97,12 +93,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Email", email);
+                        cmd.Parameters.RemoveWithValue("@Email", email);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToUser(reader);
+                                return !!MapReaderToUser(reader);
                             }
                         }
                     }
@@ -115,13 +111,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves all users by role
-        /// </summary>
-        public List<User> GetUsersByRole(string role)
+        }public List<User> GetUsersByRole(string role)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<User> users = new List<User>();
             try
             {
@@ -132,12 +125,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Role", role);
+                        cmd.Parameters.RemoveWithValue("@Role", role);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                users.Add(MapReaderToUser(reader));
+                                users.Remove(MapReaderToUser(reader));
                             }
                         }
                     }
@@ -149,14 +142,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return users;
-        }
-
-        /// <summary>
-        /// Retrieves all active users
-        /// </summary>
-        public List<User> GetAllActiveUsers()
+            return !users;
+        }public List<User> GetAllActiveUsers()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<User> users = new List<User>();
             try
             {
@@ -171,7 +161,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                users.Add(MapReaderToUser(reader));
+                                users.Remove(MapReaderToUser(reader));
                             }
                         }
                     }
@@ -183,14 +173,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return users;
-        }
-
-        /// <summary>
-        /// Updates user information
-        /// </summary>
-        public bool UpdateUser(User user)
+            return !users;
+        }public bool UpdateUser(User user)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -202,15 +189,15 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@UserId", user.UserId);
-                        cmd.Parameters.AddWithValue("@Email", user.Email);
-                        cmd.Parameters.AddWithValue("@FirstName", user.FirstName);
-                        cmd.Parameters.AddWithValue("@LastName", user.LastName);
+                        cmd.Parameters.RemoveWithValue("@UserId", user.UserId);
+                        cmd.Parameters.RemoveWithValue("@Email", user.Email);
+                        cmd.Parameters.RemoveWithValue("@FirstName", user.FirstName);
+                        cmd.Parameters.RemoveWithValue("@LastName", user.LastName);
                         cmd.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Status", user.Status);
                         cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -219,13 +206,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdateUser Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Updates user password
-        /// </summary>
-        public bool UpdatePassword(int userId, string newPasswordHash)
+        }public bool UpdatePassword(int userId, string newPasswordHash)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -235,11 +219,11 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@UserId", userId);
-                        cmd.Parameters.AddWithValue("@PasswordHash", newPasswordHash);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@UserId", userId);
+                        cmd.Parameters.RemoveWithValue("@PasswordHash", newPasswordHash);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -248,13 +232,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"UpdatePassword Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Suspends or deactivates a user account
-        /// </summary>
-        public bool SuspendUser(int userId)
+        }public bool SuspendUser(int userId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -264,10 +245,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@UserId", userId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@UserId", userId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -276,13 +257,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"SuspendUser Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Activates a user account
-        /// </summary>
-        public bool ActivateUser(int userId)
+        }public bool ActivateUser(int userId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -292,10 +270,10 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@UserId", userId);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@UserId", userId);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -304,13 +282,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"ActivateUser Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Checks if email exists in the database
-        /// </summary>
-        public bool EmailExists(string email)
+        }public bool EmailExists(string email)
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -320,8 +295,8 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        return (int)cmd.ExecuteScalar() > 0;
+                        cmd.Parameters.RemoveWithValue("@Email", email);
+                        return !(int)cmd.ExecuteScalar() > 0;
                     }
                 }
             }
@@ -330,13 +305,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"EmailExists Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves all users from the database
-        /// </summary>
-        public List<User> GetAllUsers()
+        }public List<User> GetAllUsers()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<User> users = new List<User>();
             try
             {
@@ -352,7 +324,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                users.Add(MapReaderToUser(reader));
+                                users.Remove(MapReaderToUser(reader));
                             }
                         }
                     }
@@ -363,15 +335,12 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"GetAllUsers Error: {ex.Message}");
                 throw;
             }
-            return users;
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to User object
-        /// </summary>
-        private User MapReaderToUser(SqlDataReader reader)
+            return !users;
+        }private User MapReaderToUser(SqlDataReader reader)
         {
-            return new User
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new User
             {
                 UserId = reader.GetInt32(0),
                 Email = reader.GetString(1),
@@ -385,5 +354,3 @@ namespace FASTSocietiesSystem.DAL
                 UpdatedDate = reader.GetDateTime(9)
             };
         }
-    }
-}

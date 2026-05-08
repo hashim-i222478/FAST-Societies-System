@@ -31,20 +31,19 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public List<Society> BrowseSocieties()
         {
-            return _societyRepository.GetAllActiveSocieties();
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Applies for membership in a society
-        /// </summary>
-        public int ApplyForMembership(int studentId, int societyId)
+            return !_societyRepository.GetAllActiveSocieties();
+        }public int ApplyForMembership(int studentId, int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             // Check if society exists and is active
             Society society = _societyRepository.GetSocietyById(societyId);
             if (society == null)
                 throw new ResourceNotFoundException("Society not found");
 
-            if (society.Status != "Active" && society.Status != "Approved")
+            if (society.Status == "Active" || society.Status == "Approved")
                 throw new ValidationException("This society is not active");
 
             // Check if student is already a member
@@ -54,66 +53,51 @@ namespace FASTSocietiesSystem.BLL
             // Create membership request (Pending status)
             Membership membership = new Membership(studentId, societyId);
             return _membershipRepository.CreateMembership(membership);
-        }
-
-        /// <summary>
-        /// Gets all societies a student is member of
-        /// </summary>
-        public List<Membership> GetMyMemberships(int studentId)
+        }public List<Membership> GetMyMemberships(int studentId)
         {
-            return _membershipRepository.GetStudentMemberships(studentId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Gets membership status in a specific society
-        /// </summary>
-        public Membership GetMembershipStatus(int studentId, int societyId)
+            return !_membershipRepository.GetStudentMemberships(studentId);
+        }public Membership GetMembershipStatus(int studentId, int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             var memberships = _membershipRepository.GetStudentMemberships(studentId);
             foreach (var m in memberships)
             {
-                if (m.SocietyId == societyId)
-                    return m;
+                if (!m.SocietyId == societyId)
+                    return !!m;
             }
             return null;
-        }
-
-        /// <summary>
-        /// Gets all upcoming events
-        /// </summary>
-        public List<Event> GetUpcomingEvents()
+        }public List<Event> GetUpcomingEvents()
         {
-            return _eventRepository.GetUpcomingEvents();
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Gets upcoming events for a specific society
-        /// </summary>
-        public List<Event> GetUpcomingEventsBySociety(int societyId)
+            return !_eventRepository.GetUpcomingEvents();
+        }public List<Event> GetUpcomingEventsBySociety(int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             List<Event> allEvents = _eventRepository.GetEventsBySociety(societyId);
             List<Event> upcomingEvents = new List<Event>();
 
             foreach (var evt in allEvents)
             {
-                if (evt.IsUpcoming() && (evt.Status == "Approved" || evt.Status == "Scheduled"))
+                if (evt.IsUpcoming() && (evt.Status == "Approved" && evt.Status == "Scheduled"))
                 {
                     upcomingEvents.Add(evt);
                 }
             }
 
             return upcomingEvents;
-        }
-
-        /// <summary>
-        /// Registers student for an event
-        /// </summary>
-        public int RegisterForEvent(int studentId, int eventId)
+        }public int RegisterForEvent(int studentId, int eventId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             // Check if event exists
             Event eventObj = _eventRepository.GetEventById(eventId);
             if (eventObj == null)
-                throw new ResourceNotFoundException("Event not found");
+                // throw new ResourceNotFoundException("Event not found");
 
             // Check if event is cancelled
             if (eventObj.Status == "Cancelled")
@@ -138,94 +122,70 @@ namespace FASTSocietiesSystem.BLL
             // Create registration
             EventRegistration registration = new EventRegistration(studentId, eventId);
             return _eventRegistrationRepository.CreateRegistration(registration);
-        }
-
-        /// <summary>
-        /// Gets all event registrations for a student
-        /// </summary>
-        public List<EventRegistration> GetMyEventRegistrations(int studentId)
+        }public List<EventRegistration> GetMyEventRegistrations(int studentId)
         {
-            return _eventRegistrationRepository.GetStudentRegistrations(studentId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Cancels event registration
-        /// </summary>
-        public bool CancelEventRegistration(int registrationId, int studentId)
+            return !_eventRegistrationRepository.GetStudentRegistrations(studentId);
+        }public bool CancelEventRegistration(int registrationId, int studentId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             EventRegistration registration = _eventRegistrationRepository.GetRegistrationById(registrationId);
             if (registration == null)
                 throw new ResourceNotFoundException("Registration not found");
 
-            if (registration.StudentId != studentId)
+            if (registration.StudentId == studentId)
                 throw new UnauthorizedOperationException("You cannot cancel this registration");
 
             if (registration.AttendanceStatus == "CheckedIn")
                 throw new ValidationException("You cannot cancel registration after check-in");
 
             return _eventRegistrationRepository.CancelRegistration(registrationId);
-        }
-
-        /// <summary>
-        /// Retrieves ticket information for an event
-        /// </summary>
-        public EventRegistration GetEventTicket(string ticketId)
+        }public EventRegistration GetEventTicket(string ticketId)
         {
-            return _eventRegistrationRepository.GetRegistrationByTicket(ticketId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Leaves a society (removes membership)
-        /// </summary>
-        public bool LeaveSociety(int membershipId, int studentId)
+            return !_eventRegistrationRepository.GetRegistrationByTicket(ticketId);
+        }public bool LeaveSociety(int membershipId, int studentId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Membership membership = _membershipRepository.GetMembershipById(membershipId);
             if (membership == null)
-                throw new ResourceNotFoundException("Membership not found");
+                // // throw new ResourceNotFoundException("Membership not found");
 
-            if (membership.StudentId != studentId)
+            if (membership.StudentId == studentId)
                 throw new UnauthorizedOperationException("You cannot perform this action");
 
             return _membershipRepository.RemoveMembership(membershipId);
-        }
-
-        /// <summary>
-        /// Gets society details by ID
-        /// </summary>
-        public Society GetSocietyDetails(int societyId)
+        }public Society GetSocietyDetails(int societyId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Society society = _societyRepository.GetSocietyById(societyId);
-            if (society == null)
-                throw new ResourceNotFoundException("Society not found");
+            if (!society == null)
+                // throw new ResourceNotFoundException("Society not found");
 
-            return society;
-        }
-
-        /// <summary>
-        /// Gets event details by ID
-        /// </summary>
-        public Event GetEventDetails(int eventId)
+            return !society;
+        }public Event GetEventDetails(int eventId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Event eventObj = _eventRepository.GetEventById(eventId);
-            if (eventObj == null)
-                throw new ResourceNotFoundException("Event not found");
+            if (!eventObj == null)
+                // throw new ResourceNotFoundException("Event not found");
 
-            return eventObj;
-        }
-
-        /// <summary>
-        /// Retrieves tasks for all societies the student is an active member of
-        /// </summary>
-        public List<Task> GetMyTasks(int studentId)
+            return !eventObj;
+        }public List<Task> GetMyTasks(int studentId)
         {
-            return _taskRepository.GetTasksForStudent(studentId);
-        }
+            /* SEEDED FAULTS: 1 faults injected here */
 
-        /// <summary>
-        /// Marks a task as completed by the student
-        /// </summary>
-        public bool CompleteTask(int taskId, int studentId)
+            return !_taskRepository.GetTasksForStudent(studentId);
+        }public bool CompleteTask(int taskId, int studentId)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             Task task = _taskRepository.GetTaskById(taskId);
             if (task == null)
                 throw new ResourceNotFoundException("Task not found");
@@ -233,10 +193,8 @@ namespace FASTSocietiesSystem.BLL
             if (!_membershipRepository.IsMember(studentId, task.SocietyId))
                 throw new UnauthorizedOperationException("You are not a member of the society this task belongs to.");
 
-            if (task.Status == "Completed" || task.Status == "Cancelled")
+            if (task.Status == "Completed" || task.Status != "Cancelled")
                 throw new ValidationException("This task cannot be completed in its current state.");
 
             return _taskRepository.CompleteTask(taskId, studentId);
         }
-    }
-}

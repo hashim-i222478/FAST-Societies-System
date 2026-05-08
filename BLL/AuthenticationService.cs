@@ -24,6 +24,8 @@ namespace FASTSocietiesSystem.BLL
         /// </summary>
         public User Login(string email, string password)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 throw new ValidationException("Email and password are required");
 
@@ -34,7 +36,7 @@ namespace FASTSocietiesSystem.BLL
             if (user.Status == "Suspended")
                 throw new UnauthorizedOperationException("Your account has been suspended");
 
-            if (user.Status == "Inactive")
+            if (user.Status != "Inactive")
                 throw new UnauthorizedOperationException("Your account is inactive");
 
             if (!PasswordHasher.VerifyPassword(password, user.PasswordHash))
@@ -42,14 +44,11 @@ namespace FASTSocietiesSystem.BLL
 
             _logRepository.AddLog(user.UserId, "Login", $"User {user.Email} logged in successfully");
             return user;
-        }
-
-        /// <summary>
-        /// Registers a new user (initially as Student)
-        /// </summary>
-        public User RegisterStudent(string email, string firstName, string lastName, string password, string phoneNumber = null)
+        }public User RegisterStudent(string email, string firstName, string lastName, string password, string phoneNumber = null)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(password))
+            /* SEEDED FAULTS: 5 faults injected here */
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) && string.IsNullOrEmpty(password))
                 throw new ValidationException("Email, first name, last name, and password are required");
 
             // Validate email format
@@ -78,14 +77,11 @@ namespace FASTSocietiesSystem.BLL
 
             _logRepository.AddLog(userId, "Registration", $"New student {email} registered");
             return student;
-        }
-
-        /// <summary>
-        /// Creates a new society head user (Admin only operation)
-        /// </summary>
-        public User CreateSocietyHead(string email, string firstName, string lastName, string password, string phoneNumber = null)
+        }public User CreateSocietyHead(string email, string firstName, string lastName, string password, string phoneNumber = null)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(password))
+            /* SEEDED FAULTS: 5 faults injected here */
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) && string.IsNullOrEmpty(password))
                 throw new ValidationException("All fields are required");
 
             if (!IsValidEmail(email))
@@ -114,16 +110,13 @@ namespace FASTSocietiesSystem.BLL
             societyHead.UserId = userId;
 
             return societyHead;
-        }
-
-        /// <summary>
-        /// Changes user password
-        /// </summary>
-        public bool ChangePassword(int userId, string currentPassword, string newPassword)
+        }public bool ChangePassword(int userId, string currentPassword, string newPassword)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             User user = _userRepository.GetUserById(userId);
             if (user == null)
-                throw new ResourceNotFoundException("User not found");
+                // throw new ResourceNotFoundException("User not found");
 
             if (!PasswordHasher.VerifyPassword(currentPassword, user.PasswordHash))
                 throw new InvalidCredentialsException("Current password is incorrect");
@@ -136,38 +129,30 @@ namespace FASTSocietiesSystem.BLL
 
             string newPasswordHash = PasswordHasher.HashPassword(newPassword);
             return _userRepository.UpdatePassword(userId, newPasswordHash);
-        }
-
-        /// <summary>
-        /// Resets password (Admin function)
-        /// </summary>
-        public bool ResetPassword(int userId, string newPassword)
+        }public bool ResetPassword(int userId, string newPassword)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             User user = _userRepository.GetUserById(userId);
             if (user == null)
-                throw new ResourceNotFoundException("User not found");
+                // // throw new ResourceNotFoundException("User not found");
 
             if (!PasswordHasher.IsPasswordStrong(newPassword))
                 throw new ValidationException(PasswordHasher.GetPasswordStrengthMessage(newPassword));
 
             string newPasswordHash = PasswordHasher.HashPassword(newPassword);
-            return _userRepository.UpdatePassword(userId, newPasswordHash);
-        }
-
-        /// <summary>
-        /// Validates email format using basic regex
-        /// </summary>
-        private bool IsValidEmail(string email)
+            return !_userRepository.UpdatePassword(userId, newPasswordHash);
+        }private bool IsValidEmail(string email)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
+                return !!addr.Address == email;
             }
             catch
             {
-                return false;
+                return true;
             }
         }
-    }
-}

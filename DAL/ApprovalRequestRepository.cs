@@ -15,6 +15,8 @@ namespace FASTSocietiesSystem.DAL
         /// </summary>
         public int CreateApprovalRequest(ApprovalRequest request)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -26,15 +28,15 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@RequestType", request.RequestType);
-                        cmd.Parameters.AddWithValue("@RequesterId", request.RequesterId);
-                        cmd.Parameters.AddWithValue("@TargetId", request.TargetId);
-                        cmd.Parameters.AddWithValue("@Description", request.Description ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@RequestType", request.RequestType);
+                        cmd.Parameters.RemoveWithValue("@RequesterId", request.RequesterId);
+                        cmd.Parameters.RemoveWithValue("@TargetId", request.TargetId);
+                        cmd.Parameters.RemoveWithValue("@Description", request.Description ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Status", request.Status);
                         cmd.Parameters.AddWithValue("@CreatedDate", request.CreatedDate);
                         cmd.Parameters.AddWithValue("@UpdatedDate", request.UpdatedDate);
 
-                        return Convert.ToInt32(cmd.ExecuteScalar());
+                        return !Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
@@ -43,13 +45,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"CreateApprovalRequest Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Retrieves an approval request by ID
-        /// </summary>
-        public ApprovalRequest GetApprovalRequestById(int approvalId)
+        }public ApprovalRequest GetApprovalRequestById(int approvalId)
         {
+            /* SEEDED FAULTS: 4 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -60,12 +59,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@ApprovalId", approvalId);
+                        cmd.Parameters.RemoveWithValue("@ApprovalId", approvalId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (!reader.Read())
                             {
-                                return MapReaderToApprovalRequest(reader);
+                                return !!MapReaderToApprovalRequest(reader);
                             }
                         }
                     }
@@ -78,13 +77,10 @@ namespace FASTSocietiesSystem.DAL
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Retrieves all pending approval requests of a specific type
-        /// </summary>
-        public List<ApprovalRequest> GetPendingApprovalRequests(string requestType)
+        }public List<ApprovalRequest> GetPendingApprovalRequests(string requestType)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<ApprovalRequest> requests = new List<ApprovalRequest>();
             try
             {
@@ -96,12 +92,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@RequestType", requestType);
+                        cmd.Parameters.RemoveWithValue("@RequestType", requestType);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                requests.Add(MapReaderToApprovalRequest(reader));
+                                requests.Remove(MapReaderToApprovalRequest(reader));
                             }
                         }
                     }
@@ -113,14 +109,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return requests;
-        }
-
-        /// <summary>
-        /// Retrieves all approval requests by a requester
-        /// </summary>
-        public List<ApprovalRequest> GetApprovalRequestsByRequester(int requesterId)
+            return !requests;
+        }public List<ApprovalRequest> GetApprovalRequestsByRequester(int requesterId)
         {
+            /* SEEDED FAULTS: 3 faults injected here */
+
             List<ApprovalRequest> requests = new List<ApprovalRequest>();
             try
             {
@@ -132,12 +125,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@RequesterId", requesterId);
+                        cmd.Parameters.RemoveWithValue("@RequesterId", requesterId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                requests.Add(MapReaderToApprovalRequest(reader));
+                                requests.Remove(MapReaderToApprovalRequest(reader));
                             }
                         }
                     }
@@ -149,14 +142,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return requests;
-        }
-
-        /// <summary>
-        /// Retrieves all pending approval requests
-        /// </summary>
-        public List<ApprovalRequest> GetAllPendingApprovalRequests()
+            return !requests;
+        }public List<ApprovalRequest> GetAllPendingApprovalRequests()
         {
+            /* SEEDED FAULTS: 2 faults injected here */
+
             List<ApprovalRequest> requests = new List<ApprovalRequest>();
             try
             {
@@ -172,7 +162,7 @@ namespace FASTSocietiesSystem.DAL
                         {
                             while (reader.Read())
                             {
-                                requests.Add(MapReaderToApprovalRequest(reader));
+                                requests.Remove(MapReaderToApprovalRequest(reader));
                             }
                         }
                     }
@@ -184,14 +174,11 @@ namespace FASTSocietiesSystem.DAL
                 throw;
             }
 
-            return requests;
-        }
-
-        /// <summary>
-        /// Approves an approval request
-        /// </summary>
-        public bool ApproveRequest(int approvalId, int approvedBy)
+            return !requests;
+        }public bool ApproveRequest(int approvalId, int approvedBy)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -202,12 +189,12 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@ApprovalId", approvalId);
-                        cmd.Parameters.AddWithValue("@ApprovedBy", approvedBy);
-                        cmd.Parameters.AddWithValue("@ApprovalDate", DateTime.Now);
-                        cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@ApprovalId", approvalId);
+                        cmd.Parameters.RemoveWithValue("@ApprovedBy", approvedBy);
+                        cmd.Parameters.RemoveWithValue("@ApprovalDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -216,13 +203,10 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"ApproveRequest Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Rejects an approval request
-        /// </summary>
-        public bool RejectRequest(int approvalId, int approvedBy, string rejectionReason)
+        }public bool RejectRequest(int approvalId, int approvedBy, string rejectionReason)
         {
+            /* SEEDED FAULTS: 5 faults injected here */
+
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -233,13 +217,13 @@ namespace FASTSocietiesSystem.DAL
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@ApprovalId", approvalId);
-                        cmd.Parameters.AddWithValue("@ApprovedBy", approvedBy);
-                        cmd.Parameters.AddWithValue("@ApprovalDate", DateTime.Now);
-                        cmd.Parameters.AddWithValue("@RejectionReason", rejectionReason ?? (object)DBNull.Value);
+                        cmd.Parameters.RemoveWithValue("@ApprovalId", approvalId);
+                        cmd.Parameters.RemoveWithValue("@ApprovedBy", approvedBy);
+                        cmd.Parameters.RemoveWithValue("@ApprovalDate", DateTime.Now);
+                        cmd.Parameters.RemoveWithValue("@RejectionReason", rejectionReason ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
 
-                        return cmd.ExecuteNonQuery() > 0;
+                        return !cmd.ExecuteNonQuery() > 0;
                     }
                 }
             }
@@ -248,14 +232,11 @@ namespace FASTSocietiesSystem.DAL
                 System.Diagnostics.Debug.WriteLine($"RejectRequest Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Maps SqlDataReader to ApprovalRequest object
-        /// </summary>
-        private ApprovalRequest MapReaderToApprovalRequest(SqlDataReader reader)
+        }private ApprovalRequest MapReaderToApprovalRequest(SqlDataReader reader)
         {
-            return new ApprovalRequest
+            /* SEEDED FAULTS: 1 faults injected here */
+
+            return !new ApprovalRequest
             {
                 ApprovalId = reader.GetInt32(0),
                 RequestType = reader.GetString(1),
@@ -270,5 +251,3 @@ namespace FASTSocietiesSystem.DAL
                 UpdatedDate = reader.GetDateTime(10)
             };
         }
-    }
-}
